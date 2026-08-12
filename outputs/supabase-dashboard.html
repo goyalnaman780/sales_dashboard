@@ -119,6 +119,31 @@
     .bar-group:hover::after { opacity: 1; transform: translate(-50%, 0); }
     .bar-labels { display: flex; justify-content: space-between; margin: 8px 1px 0; color: #798397; font: 9px 'DM Mono', monospace; }
 
+    .trend-sweep { stroke: rgba(246,222,145,.34); stroke-dasharray: 3 7; opacity: 0; animation: sweep-in .9s 1.15s ease forwards; }
+    .trend-focus { fill: #fff; stroke: var(--gold); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: focus-pulse 2.2s 1.25s ease-in-out infinite; }
+    .trend-focus-ring { fill: none; stroke: rgba(246,222,145,.5); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: focus-ring 2.2s 1.25s ease-in-out infinite; }
+
+    .customer-panel { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(260px,.7fr); gap: 18px; margin-bottom: 17px; }
+    .customer-list { display: grid; gap: 8px; }
+    .customer-row { display: grid; grid-template-columns: 31px minmax(110px,1fr) minmax(130px,1.15fr) 76px; align-items: center; gap: 10px; min-height: 55px; padding: 8px 10px; border: 1px solid transparent; border-radius: 12px; background: rgba(255,255,255,.018); opacity: 0; transform: translateX(-8px); animation: customer-in .45s cubic-bezier(.2,.8,.2,1) forwards; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .customer-row:hover { border-color: rgba(255,113,71,.26); background: rgba(255,113,71,.07); transform: translateX(3px); }
+    .customer-rank { color: #6f7a8f; font: 500 11px 'DM Mono', monospace; text-align: center; }
+    .customer-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; color: #fff; background: linear-gradient(135deg, var(--avatar), rgba(255,255,255,.14)); font-size: 10px; font-weight: 800; box-shadow: 0 5px 12px rgba(0,0,0,.18); }
+    .customer-main { min-width: 0; }
+    .customer-name { overflow: hidden; color: #edf1f8; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .customer-meta { margin-top: 2px; overflow: hidden; color: #768196; font: 9px 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .customer-track { height: 6px; overflow: hidden; border-radius: 99px; background: #252d3d; }
+    .customer-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), #ffbd75); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+    .customer-money { color: #f7dea0; font: 800 11px 'DM Mono', monospace; text-align: right; }
+    .customer-empty { padding: 26px 12px; color: var(--muted); text-align: center; }
+    .insights { display: grid; gap: 10px; }
+    .insight-card { position: relative; overflow: hidden; min-height: 76px; padding: 14px; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .insight-card::after { position: absolute; right: -18px; bottom: -24px; width: 70px; height: 70px; content: ""; border-radius: 50%; background: var(--insight-glow); filter: blur(4px); }
+    .insight-label { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+    .insight-value { margin-top: 6px; color: #fff; font-size: 18px; font-weight: 800; letter-spacing: -.6px; }
+    .insight-note { margin-top: 2px; color: #758095; font: 9px 'DM Mono', monospace; }
+    .customer-note { margin-top: 12px; color: #778297; font-size: 10px; }
+
     .explorer { padding: 0; }
     .explorer-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 20px 13px; }
     .explorer-actions { display: flex; align-items: center; gap: 10px; }
@@ -170,6 +195,10 @@
     @keyframes draw-line { to { stroke-dashoffset: 0; } }
     @keyframes area-in { to { opacity: 1; } }
     @keyframes dot-in { to { opacity: 1; } }
+    @keyframes sweep-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes focus-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+    @keyframes focus-ring { 0%,100% { opacity: .7; transform: scale(.8); } 50% { opacity: 0; transform: scale(2.7); } }
+    @keyframes customer-in { to { opacity: 1; transform: translateX(0); } }
 
     @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
     @media (max-width: 900px) {
@@ -179,6 +208,7 @@
       main { padding: 24px; }
       .menu-button { display: inline-flex; }
       .dashboard-grid { grid-template-columns: 1fr; }
+      .customer-panel { grid-template-columns: 1fr; }
     }
     @media (max-width: 590px) {
       main { padding: 18px 14px 35px; }
@@ -191,6 +221,8 @@
       .explorer-actions { width: 100%; }
       .action-button { flex: 0 0 auto; }
       .pagination { align-items: flex-start; flex-direction: column; }
+      .customer-row { grid-template-columns: 27px minmax(90px,1fr) 78px; }
+      .customer-track { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
@@ -242,6 +274,18 @@
           <div class="panel-head"><div><h2 class="panel-title">Top products</h2><p class="panel-subtitle">Revenue contribution by product</p></div><span class="chart-tag" style="color:#c5bbff;background:rgba(159,139,255,.11)">TOP 7</span></div>
           <div id="barChart" class="bars"><div class="trend-empty">Loading product sales&hellip;</div></div><div id="barLabels" class="bar-labels"></div>
         </article>
+      </section>
+
+      <section class="customer-panel">
+        <article class="panel reveal" style="--delay:350ms">
+          <div class="panel-head"><div><h2 class="panel-title">Top customers</h2><p class="panel-subtitle">Highest-value customers by live order revenue</p></div><span class="chart-tag" style="color:#ffad91;background:rgba(255,113,71,.11)">TOP 5</span></div>
+          <div id="customerList" class="customer-list"><div class="customer-empty">Building customer analysis&hellip;</div></div>
+          <div class="customer-note">Revenue share is calculated from amount minus discount amount. Click a customer to filter orders.</div>
+        </article>
+        <aside class="panel reveal" style="--delay:400ms">
+          <div class="panel-head"><div><h2 class="panel-title">Customer insights</h2><p class="panel-subtitle">A quick read on loyalty and value</p></div><span class="chart-tag" style="color:#6ce8d5;background:rgba(56,221,198,.1)">LIVE</span></div>
+          <div id="customerInsights" class="insights"><div class="customer-empty">Calculating insights&hellip;</div></div>
+        </aside>
       </section>
 
       <section class="panel explorer reveal" style="--delay:370ms">
@@ -313,6 +357,7 @@
       renderTabs();
       renderTrend(orders);
       renderProducts(orders);
+      renderCustomers(orders, state.datasets.users || []);
       renderTable();
     }
 
@@ -377,6 +422,81 @@
       document.querySelectorAll('.bar-group[data-product]').forEach(bar => bar.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'product', value: bar.dataset.product, label: `Product ${bar.dataset.product}` }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
     }
 
+    function renderCustomers(orders, users) {
+      const userMap = new Map();
+      users.forEach(user => {
+        const id = getCustomerId(user);
+        if (id != null) userMap.set(String(id), user);
+      });
+      const grouped = new Map();
+      orders.forEach(order => {
+        const id = order.user_id ?? order.customer_id ?? order.userId ?? order.customerId;
+        if (id == null) return;
+        const key = String(id);
+        const amount = (Number(order.amount) || 0) - (Number(order.discount_amount) || 0);
+        const current = grouped.get(key) || { id: key, revenue: 0, orders: 0, lastOrder: '' };
+        current.revenue += amount;
+        current.orders += 1;
+        const date = String(order.order_date_time || '').slice(0, 10);
+        if (date > current.lastOrder) current.lastOrder = date;
+        grouped.set(key, current);
+      });
+      const customers = [...grouped.values()].sort((a, b) => b.revenue - a.revenue);
+      const top = customers.slice(0, 5);
+      const totalRevenue = customers.reduce((sum, customer) => sum + customer.revenue, 0);
+      const repeatBuyers = customers.filter(customer => customer.orders > 1).length;
+      const topFiveRevenue = top.reduce((sum, customer) => sum + customer.revenue, 0);
+      const averageCustomerValue = customers.length ? totalRevenue / customers.length : 0;
+      const best = customers[0];
+      const colors = ['#ff7147', '#9f8bff', '#38ddc6', '#f6de91', '#7ea8ff'];
+
+      if (!top.length) {
+        $('#customerList').innerHTML = '<div class="customer-empty">No customer-linked orders are available yet.</div>';
+        $('#customerInsights').innerHTML = '<div class="customer-empty">Add orders with a user_id to see customer insights.</div>';
+        return;
+      }
+
+      $('#customerList').innerHTML = top.map((customer, index) => {
+        const label = customerLabel(customer.id, userMap.get(customer.id));
+        const share = totalRevenue ? customer.revenue / totalRevenue * 100 : 0;
+        return `<button class="customer-row" type="button" data-customer="${escapeHTML(customer.id)}" style="--avatar:${colors[index % colors.length]};animation-delay:${index * 75}ms"><span class="customer-rank">0${index + 1}</span><span class="customer-avatar">${escapeHTML(initials(label))}</span><span class="customer-main"><span class="customer-name">${escapeHTML(label)}</span><span class="customer-meta">${number(customer.orders)} order${customer.orders === 1 ? '' : 's'} · ${share.toFixed(1)}% of revenue</span></span><span class="customer-track"><span class="customer-fill" style="width:${Math.max(4, share)}%;transition-delay:${350 + index * 75}ms"></span></span><span class="customer-money">${money(customer.revenue)}</span></button>`;
+      }).join('');
+      document.querySelectorAll('[data-customer]').forEach(row => row.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'customer', value: row.dataset.customer, label: row.querySelector('.customer-name').textContent }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+
+      $('#customerInsights').innerHTML = [
+        insightCard('TOP CUSTOMER', best ? customerLabel(best.id, userMap.get(best.id)) : '—', best ? `${money(best.revenue)} · ${number(best.orders)} orders` : 'No data', '#ff7147'),
+        insightCard('REPEAT BUYERS', number(repeatBuyers), customers.length ? `${(repeatBuyers / customers.length * 100).toFixed(1)}% of active customers` : 'No data', '#38ddc6'),
+        insightCard('AVG CUSTOMER VALUE', money(averageCustomerValue), `${number(customers.length)} unique buyers`, '#9f8bff'),
+        insightCard('TOP 5 REVENUE SHARE', `${totalRevenue ? (topFiveRevenue / totalRevenue * 100).toFixed(1) : '0.0'}%`, `${money(topFiveRevenue)} combined`, '#f6de91')
+      ].join('');
+    }
+
+    function insightCard(label, value, note, color) {
+      return `<div class="insight-card" style="--insight-glow:${color}22"><div class="insight-label">${label}</div><div class="insight-value">${escapeHTML(value)}</div><div class="insight-note">${escapeHTML(note)}</div></div>`;
+    }
+
+    function getCustomerId(user) {
+      if (!user) return null;
+      const keys = ['user_id', 'id', 'customer_id', 'userId', 'customerId'];
+      const key = keys.find(candidate => user[candidate] != null);
+      return key ? user[key] : null;
+    }
+
+    function customerLabel(id, user) {
+      if (user) {
+        const keys = ['name', 'full_name', 'customer_name', 'user_name', 'username', 'email'];
+        const key = keys.find(candidate => user[candidate] != null && String(user[candidate]).trim());
+        if (key) return String(user[key]);
+      }
+      return `Customer ${id}`;
+    }
+
+    function initials(label) {
+      const parts = String(label).trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '?';
+      return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    }
+
     function shortDate(value) {
       const date = new Date(`${value}T00:00:00`);
       return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -387,6 +507,7 @@
       if (state.filter && state.active === 'orders') {
         if (state.filter.type === 'product') rows = rows.filter(row => String(row.product_id) === String(state.filter.value));
         if (state.filter.type === 'date') rows = rows.filter(row => String(row.order_date_time || '').startsWith(state.filter.value));
+        if (state.filter.type === 'customer') rows = rows.filter(row => String(row.user_id ?? row.customer_id ?? row.userId ?? row.customerId) === String(state.filter.value));
       }
       if (state.search) {
         const query = state.search.toLowerCase();
