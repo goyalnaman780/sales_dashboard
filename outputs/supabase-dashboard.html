@@ -1,33 +1,479 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Naman's Sales Dashboard</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
-:root{--bg:#090b12;--surface:#111520;--surface2:#171c29;--line:#252c3d;--text:#f3f6fc;--muted:#8f98a9;--orange:#ff7043;--cream:#f3e5ab;--cyan:#36d4c4;--violet:#9b8afb}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 4% 0%,#1e1830 0,transparent 28%),radial-gradient(circle at 100% 40%,#122c31 0,transparent 25%),var(--bg);color:var(--text);font:14px Manrope,Arial,sans-serif}.layout{display:grid;grid-template-columns:245px 1fr;min-height:100vh}.sidebar{padding:30px 19px;border-right:1px solid var(--line);background:#0d1019cc;position:sticky;top:0;height:100vh;z-index:100;transition:transform .2s ease-in-out}.logo{font-size:19px;font-weight:800;letter-spacing:-.7px;margin:0 0 40px}.logo i{font-style:normal;color:var(--orange)}.logo b{color:var(--cyan)}.nav-label{font-size:10px;color:#667085;letter-spacing:.13em;font-weight:800;margin:25px 12px 10px}.nav{display:flex;align-items:center;gap:11px;padding:11px 12px;color:#9da6b8;border-radius:10px;margin:4px 0;cursor:pointer;user-select:none;transition:all .15s ease}.nav:hover{background:#ffffff0d;color:#fff}.nav.active{background:linear-gradient(90deg,#ff704323,#ff704305);color:white;border:1px solid #ff704329}.nav .ico{font-size:16px;width:19px}.source{position:absolute;bottom:28px;left:19px;right:19px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#10141e}.source small{color:var(--muted);display:block;margin-bottom:5px}.source strong{font-size:11px;color:var(--cyan)}
-.main{padding:29px 38px 55px;min-width:0}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:30px}.crumb{color:var(--muted);font-size:12px}.crumb strong{display:block;font-size:25px;color:white;letter-spacing:-1px;margin-top:4px}.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.refresh,.export-btn,.menu-btn{border:0;border-radius:10px;padding:11px 14px;font:600 12px Manrope;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s ease}.refresh{background:var(--surface2);color:#d9deea}.refresh:hover{background:#252c3d;color:#fff}.export-btn{background:linear-gradient(135deg,#ff7043,#e64a19);color:#fff;font-weight:700}.export-btn:hover{opacity:.9;transform:translateY(-1px)}.menu-btn{display:none;background:var(--surface2);color:#fff}.live{font:700 11px Manrope;color:var(--cyan);padding:9px 12px;border-radius:20px;background:#36d4c414}.live:before{content:'●';margin-right:7px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}.card,.panel{background:linear-gradient(140deg,#151a27,#10141f);border:1px solid var(--line);box-shadow:0 16px 50px #00000024;border-radius:16px}.card{padding:19px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s ease,border-color .15s ease}.card:hover{transform:translateY(-2px);border-color:#ff704355}.card:after{content:'';position:absolute;width:70px;height:70px;border-radius:50%;right:-25px;top:-25px;background:var(--glow,#ff704319)}.label{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.1em}.metric{font-size:25px;letter-spacing:-1.1px;font-weight:800;margin:9px 0 5px}.sub{color:#8f98a9;font-size:11px}.up{color:var(--cyan);font-weight:700}.charts{display:grid;grid-template-columns:1.45fr .85fr;gap:18px;margin-bottom:18px}.panel{padding:20px;min-width:0}.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.panel h2{font-size:13px;margin:0;letter-spacing:-.2px}.panel p{margin:4px 0 0;color:var(--muted);font-size:11px}.legend{color:var(--cream);font:11px 'DM Mono';background:#f3e5ab1a;padding:5px 7px;border-radius:6px}.chart-box{height:245px}.chart-box svg{width:100%;height:100%;overflow:visible}.axis{fill:#788194;font:10px 'DM Mono'}.gridline{stroke:#293144;stroke-dasharray:4 5}.area{fill:url(#gradient)}.line{fill:none;stroke:#f3e5ab;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.dot{fill:#f3e5ab;stroke:#151a27;stroke-width:3;cursor:pointer}.dot:hover{r:6;fill:#fff;stroke:#f3e5ab}.bar-chart{height:245px;display:flex;align-items:flex-end;gap:11px;padding:10px 3px 25px;border-bottom:1px solid var(--line)}.bar-wrap{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;position:relative;cursor:pointer}.bar{width:100%;background:linear-gradient(#9b8afb,#6356d9);border-radius:6px 6px 1px 1px;transition:height .7s ease,background .2s ease}.bar-wrap:hover .bar{background:linear-gradient(#ff7043,#ff5252);box-shadow:0 0 12px #ff704388}.bar-wrap:hover:after{content:attr(data-name);position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);font:10px 'DM Mono';white-space:nowrap;background:#292f40;padding:5px 8px;border-radius:5px;z-index:10;box-shadow:0 4px 12px #00000055}.table-panel{padding:0;overflow:hidden}.table-top{padding:20px 20px 15px;display:flex;align-items:center;justify-content:space-between;gap:16px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{border:0;background:transparent;border-radius:8px;padding:7px 12px;color:#8e98aa;font:700 11px Manrope;cursor:pointer;transition:all .15s ease}.tab:hover{color:#fff;background:#ffffff0d}.tab.active{background:#ff70431c;color:#ff8a64;border:1px solid #ff704333}.search-box{position:relative;display:inline-flex;align-items:center;width:242px;max-width:50%}.search{width:100%;background:#0b0e16;border:1px solid var(--line);color:white;border-radius:9px;padding:10px 32px 10px 12px;font:12px Manrope;outline:none;transition:border-color .15s ease}.search:focus{border-color:#ff7043}.search-clear{position:absolute;right:10px;background:none;border:none;color:#8590a3;cursor:pointer;font-size:14px;display:none;padding:0}.search-clear.visible{display:block}.search-clear:hover{color:#fff}.table-wrap{overflow:auto;max-height:440px;border-top:1px solid var(--line)}table{width:100%;border-collapse:collapse;min-width:750px}th{color:#8590a3;text-transform:uppercase;font-size:9px;letter-spacing:.1em;text-align:left;padding:13px 20px;background:#111622;position:sticky;top:0;cursor:pointer;user-select:none;transition:background .15s ease}th:hover{color:#fff;background:#171d2b}th .sort-icon{margin-left:4px;color:#ff7043;font-size:10px}td{padding:13px 20px;border-top:1px solid #202635;color:#d8deea;white-space:nowrap;max-width:230px;overflow:hidden;text-overflow:ellipsis;font:12px 'DM Mono'}tbody tr:hover{background:#ffffff08}.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--line);background:#0d111a;font-size:12px;color:var(--muted)}.pagination-btn{background:var(--surface2);border:1px solid var(--line);color:#d9deea;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all .15s ease}.pagination-btn:disabled{opacity:.4;cursor:not-allowed}.pagination-btn:hover:not(:disabled){background:#252c3d;color:#fff}.filter-badge{display:inline-flex;align-items:center;gap:6px;background:#ff704322;color:#ff8a64;border:1px solid #ff704344;padding:4px 8px;border-radius:6px;font-size:11px;margin-left:10px}.filter-badge button{background:none;border:none;color:#ff8a64;cursor:pointer;font-weight:bold;padding:0 2px}.foot{font-size:11px;color:#697385;margin-top:16px}.empty{color:var(--muted);padding:30px;text-align:center}.error{color:#ff8b72}@media(max-width:940px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:250px;background:#0d1019f5;backdrop-filter:blur(10px);box-shadow:4px 0 20px #00000088}.sidebar.open{display:block}.main{padding:22px}.stats{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.menu-btn{display:inline-flex}}@media(max-width:540px){.main{padding:18px 14px}.stats{grid-template-columns:1fr 1fr;gap:10px}.metric{font-size:20px}.top{align-items:flex-start}.actions{flex-direction:row;justify-content:flex-start}.table-top{align-items:flex-start;flex-direction:column}.search-box{max-width:100%;width:100%}}
-</style></head><body><div class="layout"><aside class="sidebar" id="sidebar"><div class="logo"><i>◆</i> naman<b>/</b>sales</div><div class="nav-label">WORKSPACE</div><div class="nav active" onclick="switchNav('overview')"><span class="ico">▦</span> Overview</div><div class="nav" onclick="switchNav('orders')"><span class="ico">◫</span> Orders</div><div class="nav" onclick="switchNav('users')"><span class="ico">◈</span> Customers</div><div class="nav" onclick="switchNav('products')"><span class="ico">⌁</span> Products</div><div class="nav-label">ANALYTICS</div><div class="nav" onclick="switchNav('insights')"><span class="ico">◔</span> Insights</div><div class="nav" onclick="switchNav('destinations')"><span class="ico">↗</span> Reports</div><div class="source"><small>DATA SOURCE</small><strong>● Supabase live sync</strong></div></aside><main class="main"><header class="top"><div class="crumb"><button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button> SALES / OVERVIEW<strong>Naman's Sales Dashboard</strong></div><div class="actions"><span id="status" class="live">Connecting…</span><button class="export-btn" onclick="exportCSV()">⤓ Export CSV</button><button class="refresh" onclick="load()">↻ Refresh data</button></div></header><section class="stats"><div class="card" style="--glow:#ff70431c" onclick="switchTab('orders')" title="Click to view orders"><div class="label">TOTAL REVENUE</div><div class="metric" id="revenue">—</div><div class="sub"><span class="up">● Live</span> gross order value</div></div><div class="card" style="--glow:#36d4c41a" onclick="switchTab('orders')" title="Click to view orders"><div class="label">TOTAL ORDERS</div><div class="metric" id="ordersCount">—</div><div class="sub">All imported records</div></div><div class="card" style="--glow:#9b8afb1c" onclick="switchTab('users')" title="Click to view customers"><div class="label">CUSTOMERS</div><div class="metric" id="customerCount">—</div><div class="sub">Unique ordering users</div></div><div class="card" style="--glow:#ffd1661b" onclick="switchTab('orders')" title="Click to view orders"><div class="label">AVERAGE ORDER</div><div class="metric" id="averageOrder">—</div><div class="sub">Revenue per order</div></div></section><section class="charts"><article class="panel"><div class="panel-head"><div><h2>Revenue trend</h2><p>Daily sales performance from live orders</p></div><span class="legend" style="color:#f3e5ab;background:#f3e5ab18">LIVE DATA</span></div><div id="lineChart" class="chart-box"></div></article><article class="panel"><div class="panel-head"><div><h2>Top products</h2><p>Revenue by product ID (Click bar to filter)</p></div><span class="legend" style="color:#b8aafa;background:#9b8afb14">TOP 7</span></div><div id="barChart" class="bar-chart"></div></article></section><section class="panel table-panel"><div class="table-top"><div><h2>Explore your live data <span id="activeFilterBadge"></span></h2><p id="tableInfo">Loading Supabase tables…</p></div><div class="search-box"><input id="search" class="search" placeholder="⌕  Search current table…" oninput="onSearchInput()"><button id="searchClear" class="search-clear" onclick="clearSearch()">✕</button></div></div><div id="tabs" class="tabs" style="padding:0 20px 16px"></div><div class="table-wrap"><table id="dataTable"></table></div><div id="pagination" class="pagination" style="display:none"></div></section><div class="foot">Last refreshed <span id="updated">—</span> · Direct connection to your Supabase database</div></main></div>
-<script>
-const SUPABASE_URL='https://hweqkpmehyyheimbazbp.supabase.co',SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3ZXFrcG1laHl5aGVpbWJhemJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MTgwMzQsImV4cCI6MjEwMTk5NDAzNH0.3FnBKHjBkoKdHQTUmMenZBZxxU-2pWBdkLeyZXC8Ig4',TABLES=['orders','users','products','destinations'],headers={apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`};let datasets={},active='orders',sortCol=null,sortAsc=true,activeFilter=null,page=1,rowsPerPage=50;const esc=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const money=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n||0);
-async function fetchAll(name){let all=[],from=0;for(;;){const r=await fetch(`${SUPABASE_URL}/rest/v1/${name}?select=*`,{headers:{...headers,Range:`${from}-${from+999}`}});if(!r.ok)throw Error(`${name} (${r.status})`);const p=await r.json();all.push(...p);if(p.length<1000)return all;from+=1000}}
-async function load(){document.querySelector('#status').textContent='Loading live data…';try{datasets=Object.fromEntries(await Promise.all(TABLES.map(async n=>[n,await fetchAll(n)])));render();document.querySelector('#status').textContent='Live connected';document.querySelector('#status').className='live'}catch(e){document.querySelector('#status').textContent='Connection error';document.querySelector('#status').className='live error';document.querySelector('#tableInfo').textContent=e.message;console.error(e)}}
-function render(){const orders=datasets.orders||[],revenue=orders.reduce((s,o)=>s+(+o.amount||0)-(+o.discount_amount||0),0),users=new Set(orders.map(o=>o.user_id).filter(Boolean));document.querySelector('#revenue').textContent=money(revenue);document.querySelector('#ordersCount').textContent=orders.length.toLocaleString();document.querySelector('#customerCount').textContent=users.size.toLocaleString();document.querySelector('#averageOrder').textContent=money(orders.length?revenue/orders.length:0);document.querySelector('#updated').textContent=new Date().toLocaleString();renderTabs();renderLine(orders);renderBars(orders);renderTable()}
-function renderTabs(){document.querySelector('#tabs').innerHTML=TABLES.map(n=>`<button class="tab ${n===active?'active':''}" onclick="switchTab('${n}')">${n.toUpperCase()} · ${(datasets[n]||[]).length.toLocaleString()}</button>`).join('');updateNavState()}
-function switchTab(tableName){if(!TABLES.includes(tableName))return;active=tableName;page=1;sortCol=null;renderTabs();renderTable()}
-function switchNav(key){if(key==='overview'){window.scrollTo({top:0,behavior:'smooth'});switchTab('orders')}else if(key==='insights'){document.querySelector('.charts')?.scrollIntoView({behavior:'smooth'})}else if(TABLES.includes(key)){switchTab(key);document.querySelector('.table-panel')?.scrollIntoView({behavior:'smooth'})}closeSidebar()}
-function updateNavState(){document.querySelectorAll('.nav').forEach(el=>{const t=el.textContent.toLowerCase();const isActive=(active==='orders'&&(t.includes('overview')||t.includes('orders')))||(active==='users'&&t.includes('customers'))||(active==='products'&&t.includes('products'))||(active==='destinations'&&t.includes('reports'));el.classList.toggle('active',isActive)})}
-function toggleSidebar(){document.querySelector('#sidebar')?.classList.toggle('open')}
-function closeSidebar(){document.querySelector('#sidebar')?.classList.remove('open')}
-function handleSort(c){if(sortCol===c){sortAsc=!sortAsc}else{sortCol=c;sortAsc=true}renderTable()}
-function onSearchInput(){page=1;renderTable()}
-function clearSearch(){document.querySelector('#search').value='';onSearchInput()}
-function filterByProduct(pId){activeFilter={type:'product',value:pId,label:`Product ${pId}`};switchTab('orders');document.querySelector('.table-panel')?.scrollIntoView({behavior:'smooth'})}
-function filterByDate(dt){activeFilter={type:'date',value:dt,label:`Date: ${dt}`};switchTab('orders');document.querySelector('.table-panel')?.scrollIntoView({behavior:'smooth'})}
-function clearActiveFilter(){activeFilter=null;renderTable()}
-function renderLine(rows){let map={};rows.forEach(o=>{let d=o.order_date_time||'Unknown';map[d]=(map[d]||0)+(+o.amount||0)-(+o.discount_amount||0)});let pts=Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0])).slice(-30),max=Math.max(...pts.map(x=>x[1]),1),w=700,h=230,pad=28;let coords=pts.map((x,i)=>[pad+i*(w-pad*2)/Math.max(pts.length-1,1),h-pad-(x[1]/max)*(h-pad*2)]),path=coords.map((p,i)=>(i?'L':'M')+p.join(',')).join(' '),area=path+` L ${coords.at(-1)?.[0]||pad},${h-pad} L ${pad},${h-pad} Z`;document.querySelector('#lineChart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#f3e5ab" stop-opacity=".35"/><stop offset="1" stop-color="#f3e5ab" stop-opacity="0"/></linearGradient></defs>${[.25,.5,.75].map(v=>`<line class="gridline" x1="${pad}" x2="${w-pad}" y1="${h-pad-(h-pad*2)*v}" y2="${h-pad-(h-pad*2)*v}"/>`).join('')}<path class="area" d="${area}"/><path class="line" d="${path}"/>${coords.map((p,i)=>i%Math.ceil(coords.length/7)===0?`<circle class="dot" cx="${p[0]}" cy="${p[1]}" r="4" onclick="filterByDate('${pts[i][0]}')"><title>${pts[i][0]} · ${money(pts[i][1])} (Click to filter)</title></circle>`:'').join('')}<text class="axis" x="${pad}" y="${h-5}">${pts[0]?.[0]||''}</text><text class="axis" text-anchor="end" x="${w-pad}" y="${h-5}">${pts.at(-1)?.[0]||''}</text></svg>`}
-function renderBars(rows){let m={};rows.forEach(o=>{let k=o.product_id??'—';m[k]=(m[k]||0)+(+o.amount||0)-(+o.discount_amount||0)});let top=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,7),max=Math.max(...top.map(x=>x[1]),1);document.querySelector('#barChart').innerHTML=top.map(([pId,v])=>`<div class="bar-wrap" data-name="Product ${pId}: ${money(v)} (Click to filter)" onclick="filterByProduct('${pId}')"><div class="bar" style="height:${v/max*100}%"></div></div>`).join('')||'<span class="empty">No order data available.</span>'}
-function renderTable(){let rows=datasets[active]||[];const searchVal=document.querySelector('#search').value.trim();const clearBtn=document.querySelector('#searchClear');if(clearBtn)clearBtn.classList.toggle('visible',searchVal.length>0);if(activeFilter){if(activeFilter.type==='product'&&active==='orders'){rows=rows.filter(r=>String(r.product_id)===String(activeFilter.value))}else if(activeFilter.type==='date'&&active==='orders'){rows=rows.filter(r=>String(r.order_date_time||'').startsWith(activeFilter.value))}}if(searchVal){const q=searchVal.toLowerCase();rows=rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q))}if(sortCol){rows=[...rows].sort((a,b)=>{let va=a[sortCol],vb=b[sortCol];if(va==null)return 1;if(vb==null)return-1;if(typeof va==='number'&&typeof vb==='number'){return sortAsc?va-vb:vb-va}return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va))})}const t=document.querySelector('#dataTable');const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))].slice(0,15);const badge=document.querySelector('#activeFilterBadge');if(badge){badge.innerHTML=activeFilter?`<span class="filter-badge">${esc(activeFilter.label)} <button onclick="clearActiveFilter()">✕</button></span>`:''}document.querySelector('#tableInfo').textContent=`${rows.length.toLocaleString()} matching records in ${active}`;if(!rows.length){t.innerHTML='<tbody><tr><td class="empty">No matching records found.</td></tr></tbody>';renderPagination(0);return}const totalPages=Math.ceil(rows.length/rowsPerPage)||1;if(page>totalPages)page=totalPages;const startIdx=(page-1)*rowsPerPage;const pagedRows=rows.slice(startIdx,startIdx+rowsPerPage);t.innerHTML=`<thead><tr>${cols.map(c=>{let icon=sortCol===c?(sortAsc?' ▲':' ▼'):'';return`<th onclick="handleSort('${c}')">${esc(c)}<span class="sort-icon">${icon}</span></th>`}).join('')}</tr></thead><tbody>${pagedRows.map(r=>`<tr>${cols.map(c=>{let val=typeof r[c]==='object'?JSON.stringify(r[c]):r[c];return`<td title="${esc(val)}">${esc(val)}</td>`}).join('')}</tr>`).join('')}</tbody>`;renderPagination(rows.length)}
-function renderPagination(totalRows){const pagEl=document.querySelector('#pagination');if(!pagEl)return;if(totalRows<=rowsPerPage){pagEl.style.display='none';return}pagEl.style.display='flex';const totalPages=Math.ceil(totalRows/rowsPerPage);const start=(page-1)*rowsPerPage+1;const end=Math.min(page*rowsPerPage,totalRows);pagEl.innerHTML=`<div>Showing <strong>${start}–${end}</strong> of <strong>${totalRows.toLocaleString()}</strong> rows</div><div style="display:flex;gap:8px;align-items:center"><button class="pagination-btn" ${page<=1?'disabled':''} onclick="changePage(-1)">‹ Prev</button><span>Page ${page} of ${totalPages}</span><button class="pagination-btn" ${page>=totalPages?'disabled':''} onclick="changePage(1)">Next ›</button></div>`}
-function changePage(delta){page+=delta;renderTable()}
-function exportCSV(){let rows=datasets[active]||[];if(!rows.length){alert('No data to export for '+active);return}const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];let csv=cols.map(c=>`"${c.replace(/"/g,'""')}"`).join(',')+'\n';rows.forEach(r=>{let line=cols.map(c=>{let val=r[c]==null?'':(typeof r[c]==='object'?JSON.stringify(r[c]):String(r[c]));return`"${val.replace(/"/g,'""')}"`}).join(',');csv+=line+'\n'});const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`${active}_export_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(link);link.click();document.body.removeChild(link)}
-load();
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Naman's Sales Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+    :root {
+      --bg: #080a11;
+      --surface: #111520;
+      --surface-2: #171c29;
+      --line: #262d3e;
+      --text: #f5f7fc;
+      --muted: #8e98aa;
+      --orange: #ff7147;
+      --orange-soft: rgba(255, 113, 71, .15);
+      --mint: #38ddc6;
+      --violet: #9f8bff;
+      --gold: #f6de91;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font: 14px/1.45 Manrope, Arial, sans-serif;
+    }
+
+    .ambient, .grid-glow, .noise { position: fixed; pointer-events: none; inset: 0; }
+    .ambient { z-index: -3; overflow: hidden; background: #080a11; }
+    .ambient::before, .ambient::after {
+      position: absolute; width: 620px; height: 620px; content: ""; border-radius: 50%; filter: blur(34px); opacity: .34;
+    }
+    .ambient::before { top: -280px; left: -190px; background: #43316a; animation: drift-one 15s ease-in-out infinite alternate; }
+    .ambient::after { right: -250px; bottom: -300px; background: #0c6666; animation: drift-two 18s ease-in-out infinite alternate; }
+    .grid-glow { z-index: -2; opacity: .28; background-image: linear-gradient(rgba(129,145,180,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(129,145,180,.08) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 75%); }
+    .noise { z-index: 9; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E"); }
+
+    .app { display: grid; min-height: 100vh; grid-template-columns: 244px minmax(0,1fr); }
+    .sidebar { position: sticky; top: 0; z-index: 10; display: flex; flex-direction: column; height: 100vh; padding: 29px 17px 24px; border-right: 1px solid var(--line); background: rgba(10,13,22,.82); backdrop-filter: blur(18px); }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px; margin-bottom: 42px; font-size: 19px; font-weight: 800; letter-spacing: -.8px; }
+    .brand-mark { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 8px; color: #100b0a; background: linear-gradient(135deg, var(--orange), #ffb36d); box-shadow: 0 5px 20px rgba(255,113,71,.34); transform: rotate(-8deg); }
+    .brand-mark svg { width: 14px; height: 14px; }
+    .brand span { color: var(--mint); }
+    .side-label { margin: 23px 11px 9px; color: #667085; font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+    .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 11px; border: 1px solid transparent; border-radius: 10px; color: #98a2b5; background: transparent; font: 700 12px Manrope, sans-serif; text-align: left; cursor: pointer; transition: color .2s ease, transform .2s ease, background .2s ease, border-color .2s ease; }
+    .nav-item + .nav-item { margin-top: 4px; }
+    .nav-item svg { width: 17px; height: 17px; opacity: .9; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.055); transform: translateX(2px); }
+    .nav-item.active { color: #fff; border-color: rgba(255,113,71,.25); background: linear-gradient(90deg, rgba(255,113,71,.19), rgba(255,113,71,.025)); box-shadow: inset 3px 0 0 var(--orange); }
+    .side-source { margin-top: auto; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(18,23,34,.88); }
+    .side-source small { display: block; margin-bottom: 5px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+    .connection { display: flex; align-items: center; gap: 7px; color: var(--mint); font: 500 11px 'DM Mono', monospace; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: pulse 1.8s infinite; }
+
+    main { min-width: 0; padding: 30px 38px 54px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 27px; }
+    .eyebrow { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+    .title { margin: 5px 0 0; color: #fff; font-size: clamp(25px, 3vw, 32px); line-height: 1.12; letter-spacing: -1.35px; }
+    .title em { color: var(--orange); font-style: normal; }
+    .actions { display: flex; align-items: center; gap: 10px; }
+    button { font: inherit; }
+    .icon-button, .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 39px; border: 1px solid var(--line); border-radius: 10px; color: #dfe5ef; background: rgba(23,28,41,.9); font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease; }
+    .icon-button { width: 39px; }
+    .action-button { padding: 0 13px; }
+    .icon-button:hover, .action-button:hover { color: #fff; border-color: #3b465e; background: #202737; transform: translateY(-2px); }
+    .icon-button svg, .action-button svg { width: 15px; height: 15px; }
+    .refresh-spinner { transition: transform .5s ease; }
+    .is-loading .refresh-spinner { animation: spin .7s linear infinite; }
+    .status { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid rgba(56,221,198,.13); border-radius: 999px; color: var(--mint); background: rgba(56,221,198,.09); font: 500 10px 'DM Mono', monospace; white-space: nowrap; }
+    .status.is-error { color: #ff9f8a; border-color: rgba(255,113,71,.2); background: rgba(255,113,71,.1); }
+    .menu-button { display: none; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 15px; margin-bottom: 17px; }
+    .metric-card, .panel { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(135deg, rgba(23,28,41,.97), rgba(13,17,27,.95)); box-shadow: 0 18px 55px rgba(0,0,0,.22); }
+    .metric-card { min-height: 147px; padding: 18px; cursor: pointer; isolation: isolate; transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s ease, box-shadow .25s ease; }
+    .metric-card::before { position: absolute; z-index: -1; top: -46px; right: -36px; width: 130px; height: 130px; content: ""; border-radius: 50%; background: var(--metric-glow); filter: blur(5px); opacity: .72; transition: transform .35s ease; }
+    .metric-card::after { position: absolute; right: 18px; bottom: 16px; width: 69px; height: 27px; content: ""; opacity: .7; background: linear-gradient(135deg, transparent 0 45%, var(--spark) 46% 50%, transparent 51% 61%, var(--spark) 62% 66%, transparent 67%); clip-path: polygon(0 73%, 13% 56%, 28% 66%, 41% 22%, 58% 46%, 70% 15%, 100% 0, 100% 100%, 0 100%); }
+    .metric-card:hover { border-color: rgba(255,255,255,.2); box-shadow: 0 23px 60px rgba(0,0,0,.32); transform: translateY(-5px); }
+    .metric-card:hover::before { transform: scale(1.14) translate(-7px, 7px); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; }
+    .metric-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+    .metric-icon { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; color: var(--metric-color); background: rgba(255,255,255,.045); }
+    .metric-icon svg { width: 15px; height: 15px; }
+    .metric-value { min-height: 37px; margin: 11px 0 5px; color: #fff; font-size: clamp(23px, 2.1vw, 29px); font-weight: 800; line-height: 1.1; letter-spacing: -1.3px; }
+    .metric-foot { color: var(--muted); font-size: 11px; }
+    .metric-foot strong { color: var(--metric-color); font-weight: 800; }
+
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(310px,.9fr); gap: 17px; margin-bottom: 17px; }
+    .panel { padding: 19px; transition: border-color .25s ease, transform .25s ease; }
+    .panel:hover { border-color: #364057; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 13px; margin-bottom: 13px; }
+    .panel-title { margin: 0; color: #f6f8fb; font-size: 13px; letter-spacing: -.25px; }
+    .panel-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .chart-tag { padding: 5px 7px; border-radius: 6px; color: var(--gold); background: rgba(246,222,145,.1); font: 500 10px 'DM Mono', monospace; letter-spacing: .04em; }
+    .chart-container { position: relative; height: 255px; }
+    .chart-container svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-gridline { stroke: #293144; stroke-dasharray: 4 6; }
+    .chart-axis { fill: #798397; font: 10px 'DM Mono', monospace; }
+    .trend-area { opacity: 0; animation: area-in .75s .45s ease forwards; }
+    .trend-line { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1500; stroke-dashoffset: 1500; filter: drop-shadow(0 0 6px rgba(246,222,145,.35)); animation: draw-line 1.25s .08s cubic-bezier(.25,.7,.25,1) forwards; }
+    .trend-dot { fill: var(--gold); stroke: #151a27; stroke-width: 3; cursor: pointer; opacity: 0; animation: dot-in .35s forwards; transition: r .2s ease, fill .2s ease; }
+    .trend-dot:hover { r: 6; fill: #fff; }
+    .trend-empty { display: grid; height: 100%; place-items: center; color: var(--muted); }
+
+    .bars { display: flex; align-items: flex-end; gap: 9px; height: 255px; padding: 17px 1px 23px; border-bottom: 1px solid rgba(38,45,62,.85); }
+    .bar-group { position: relative; display: flex; flex: 1; align-items: flex-end; align-self: stretch; min-width: 18px; cursor: pointer; }
+    .bar-fill { width: 100%; height: 0; border-radius: 7px 7px 2px 2px; background: linear-gradient(180deg, #b4a7ff, #6a59dd); box-shadow: 0 7px 20px rgba(123,106,235,.18); transition: height .85s cubic-bezier(.22,.75,.2,1), filter .2s ease, transform .2s ease; }
+    .bar-fill.is-visible { height: var(--bar-height); }
+    .bar-group:hover .bar-fill { filter: saturate(1.25) brightness(1.15); transform: translateY(-3px); }
+    .bar-group::after { position: absolute; bottom: calc(100% + 8px); left: 50%; z-index: 5; padding: 5px 7px; border: 1px solid #3a4357; border-radius: 6px; color: #f1f4fa; background: #1d2331; box-shadow: 0 9px 20px rgba(0,0,0,.3); content: attr(data-tooltip); font: 10px 'DM Mono', monospace; white-space: nowrap; opacity: 0; transform: translate(-50%, 4px); transition: opacity .18s ease, transform .18s ease; pointer-events: none; }
+    .bar-group:hover::after { opacity: 1; transform: translate(-50%, 0); }
+    .bar-labels { display: flex; justify-content: space-between; margin: 8px 1px 0; color: #798397; font: 9px 'DM Mono', monospace; }
+
+    .explorer { padding: 0; }
+    .explorer-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 20px 13px; }
+    .explorer-actions { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; width: min(280px, 37vw); }
+    .search-wrap svg { position: absolute; top: 50%; left: 11px; width: 14px; height: 14px; color: #7e899c; transform: translateY(-50%); pointer-events: none; }
+    .search { width: 100%; height: 38px; padding: 0 33px; border: 1px solid var(--line); border-radius: 9px; outline: none; color: #f6f7fb; background: #0b0e16; font: 12px Manrope, sans-serif; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+    .search::placeholder { color: #697486; }
+    .search:focus { border-color: rgba(255,113,71,.78); background: #0e121c; box-shadow: 0 0 0 3px rgba(255,113,71,.1); }
+    .clear-search { position: absolute; top: 50%; right: 8px; display: none; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 6px; color: #98a2b5; background: transparent; transform: translateY(-50%); cursor: pointer; }
+    .clear-search.visible { display: block; }
+    .clear-search:hover { color: #fff; background: #262d3c; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 20px 15px; }
+    .tab { position: relative; padding: 7px 10px; border: 1px solid transparent; border-radius: 8px; color: #8994a7; background: transparent; font: 800 10px Manrope, sans-serif; letter-spacing: .03em; cursor: pointer; transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease; }
+    .tab:hover { color: #fff; background: rgba(255,255,255,.05); transform: translateY(-1px); }
+    .tab.active { border-color: rgba(255,113,71,.28); color: #ff9b7f; background: rgba(255,113,71,.12); }
+    .table-wrap { max-height: 440px; overflow: auto; border-top: 1px solid var(--line); }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    th { position: sticky; top: 0; z-index: 2; padding: 12px 20px; color: #7f899c; background: #111622; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-align: left; text-transform: uppercase; cursor: pointer; transition: color .2s ease, background .2s ease; }
+    th:hover { color: #fff; background: #181e2c; }
+    th .sort { margin-left: 4px; color: var(--orange); }
+    td { max-width: 260px; padding: 13px 20px; overflow: hidden; border-top: 1px solid #202635; color: #dce2ec; font: 12px 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+    tbody tr { animation: row-in .36s both; animation-delay: calc(var(--row-index) * 28ms); }
+    tbody tr:hover { background: rgba(255,255,255,.045); }
+    .table-empty { padding: 38px 20px; color: var(--muted); text-align: center; }
+    .pagination { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px 20px; border-top: 1px solid var(--line); color: var(--muted); background: rgba(11,14,22,.74); font-size: 11px; }
+    .pagination-controls { display: flex; align-items: center; gap: 8px; }
+    .small-button { min-width: 71px; height: 29px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; color: #dbe1ec; background: var(--surface-2); font-size: 10px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+    .small-button:hover:not(:disabled) { background: #252d3e; transform: translateY(-1px); }
+    .small-button:disabled { opacity: .35; cursor: not-allowed; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 6px; margin-left: 7px; padding: 3px 7px; border: 1px solid rgba(255,113,71,.26); border-radius: 6px; color: #ff9c7f; background: rgba(255,113,71,.1); font: 500 10px 'DM Mono', monospace; }
+    .filter-chip button { width: 14px; height: 14px; padding: 0; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; }
+    .filter-chip button:hover { color: #fff; background: rgba(255,255,255,.12); }
+    .footer { margin-top: 14px; color: #667185; font: 10px 'DM Mono', monospace; }
+    .footer strong { color: #8994a7; font-weight: 500; }
+    .toast { position: fixed; right: 25px; bottom: 24px; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 11px 13px; border: 1px solid rgba(56,221,198,.22); border-radius: 10px; color: #eafffb; background: rgba(17,23,34,.93); box-shadow: 0 15px 35px rgba(0,0,0,.35); font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
+    .skeleton { position: relative; overflow: hidden; color: transparent !important; border-radius: 5px; background: #252b3a !important; }
+    .skeleton::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent); transform: translateX(-100%); animation: shimmer 1.2s infinite; }
+    .reveal { opacity: 0; transform: translateY(16px); animation: reveal .62s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: var(--delay,0ms); }
+
+    @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+    @keyframes row-in { from { opacity: 0; transform: translateX(-7px); } to { opacity: 1; transform: none; } }
+    @keyframes drift-one { to { transform: translate(110px, 75px) scale(1.12); } }
+    @keyframes drift-two { to { transform: translate(-120px, -60px) scale(.9); } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 currentColor; } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer { to { transform: translateX(100%); } }
+    @keyframes draw-line { to { stroke-dashoffset: 0; } }
+    @keyframes area-in { to { opacity: 1; } }
+    @keyframes dot-in { to { opacity: 1; } }
+
+    @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    @media (max-width: 900px) {
+      .app { display: block; }
+      .sidebar { position: fixed; left: 0; width: 244px; transform: translateX(-105%); box-shadow: 12px 0 40px rgba(0,0,0,.34); transition: transform .26s ease; }
+      .sidebar.open { transform: translateX(0); }
+      main { padding: 24px; }
+      .menu-button { display: inline-flex; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 590px) {
+      main { padding: 18px 14px 35px; }
+      .topbar, .explorer-head { align-items: flex-start; flex-direction: column; }
+      .actions { width: 100%; justify-content: space-between; }
+      .metrics { gap: 10px; }
+      .metric-card { min-height: 132px; padding: 14px; }
+      .metric-value { font-size: 22px; }
+      .search-wrap { width: 100%; }
+      .explorer-actions { width: 100%; }
+      .action-button { flex: 0 0 auto; }
+      .pagination { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div><div class="grid-glow"></div><div class="noise"></div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13.5 10 18l9-12"/></svg></span>naman<span>/</span>sales</div>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-nav="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</button>
+      <button class="nav-item" data-nav="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M7 3v4m10-4v4M5 11h14v9H5z"/><path d="M8 15h3"/></svg>Orders</button>
+      <button class="nav-item" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6"/></svg>Customers</button>
+      <button class="nav-item" data-nav="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7M12 11v10"/></svg>Products</button>
+      <div class="side-label">ANALYTICS</div>
+      <button class="nav-item" data-nav="insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg>Insights</button>
+      <button class="nav-item" data-nav="destinations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 6-9 11-9 11S3 16 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Reports</button>
+      <div class="side-source"><small>DATA SOURCE</small><div class="connection"><i class="pulse-dot"></i>Supabase live sync</div></div>
+    </aside>
+
+    <main>
+      <header class="topbar reveal" style="--delay:30ms">
+        <div>
+          <div class="eyebrow"><button class="icon-button menu-button" id="menuButton" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button> SALES / OVERVIEW</div>
+          <h1 class="title">Naman's <em>Sales</em> Dashboard</h1>
+        </div>
+        <div class="actions">
+          <span class="status" id="status"><i class="pulse-dot"></i>Connecting</span>
+          <button class="action-button" id="exportButton"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg>Export CSV</button>
+          <button class="action-button" id="refreshButton"><svg class="refresh-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0 2 5.5M20 4v7h-7"/></svg>Refresh</button>
+        </div>
+      </header>
+
+      <section class="metrics">
+        <article class="metric-card reveal" data-table="orders" style="--delay:80ms;--metric-color:#ff9b7f;--metric-glow:rgba(255,113,71,.22);--spark:#ff8a67"><div class="metric-top"><span class="metric-label">TOTAL REVENUE</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12M6 21h12M9 3c0 6 6 5 6 9 0 3-2 4-6 4m6 5c0-5-6-4-6-8"/></svg></span></div><div class="metric-value skeleton" id="revenue">Loading</div><div class="metric-foot"><strong>Live data</strong> &middot; gross order value</div></article>
+        <article class="metric-card reveal" data-table="orders" style="--delay:130ms;--metric-color:#6ce8d5;--metric-glow:rgba(56,221,198,.18);--spark:#56d6c6"><div class="metric-top"><span class="metric-label">TOTAL ORDERS</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span></div><div class="metric-value skeleton" id="ordersCount">Loading</div><div class="metric-foot"><strong>All records</strong> &middot; updated in real time</div></article>
+        <article class="metric-card reveal" data-table="users" style="--delay:180ms;--metric-color:#bbacff;--metric-glow:rgba(159,139,255,.18);--spark:#a595f7"><div class="metric-top"><span class="metric-label">CUSTOMERS</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6"/></svg></span></div><div class="metric-value skeleton" id="customerCount">Loading</div><div class="metric-foot"><strong>Unique users</strong> &middot; placing orders</div></article>
+        <article class="metric-card reveal" data-table="orders" style="--delay:230ms;--metric-color:#ffe69b;--metric-glow:rgba(246,222,145,.15);--spark:#ead587"><div class="metric-top"><span class="metric-label">AVERAGE ORDER</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M7 7h10M7 17h10"/></svg></span></div><div class="metric-value skeleton" id="averageOrder">Loading</div><div class="metric-foot"><strong>Revenue per</strong> &middot; completed order</div></article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel reveal" style="--delay:270ms">
+          <div class="panel-head"><div><h2 class="panel-title">Revenue trend</h2><p class="panel-subtitle">Daily sales performance from your live orders</p></div><span class="chart-tag">LAST 30 DAYS</span></div>
+          <div id="lineChart" class="chart-container"><div class="trend-empty">Loading live sales trend&hellip;</div></div>
+        </article>
+        <article class="panel reveal" style="--delay:320ms">
+          <div class="panel-head"><div><h2 class="panel-title">Top products</h2><p class="panel-subtitle">Revenue contribution by product</p></div><span class="chart-tag" style="color:#c5bbff;background:rgba(159,139,255,.11)">TOP 7</span></div>
+          <div id="barChart" class="bars"><div class="trend-empty">Loading product sales&hellip;</div></div><div id="barLabels" class="bar-labels"></div>
+        </article>
+      </section>
+
+      <section class="panel explorer reveal" style="--delay:370ms">
+        <div class="explorer-head"><div><h2 class="panel-title">Explore your live data <span id="filterChip"></span></h2><p class="panel-subtitle" id="tableInfo">Connecting to Supabase&hellip;</p></div><div class="explorer-actions"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input class="search" id="search" type="search" autocomplete="off" placeholder="Search current table (Ctrl K)"><button class="clear-search" id="clearSearch" aria-label="Clear search">&times;</button></div></div></div>
+        <div class="tabs" id="tabs"></div>
+        <div class="table-wrap"><table id="dataTable"></table></div>
+        <div class="pagination" id="pagination" hidden></div>
+      </section>
+      <div class="footer">Last refreshed <strong id="updated">not yet</strong> &middot; direct browser connection to Supabase</div>
+    </main>
+  </div>
+  <div class="toast" id="toast"><i class="toast-dot"></i><span id="toastText">Data refreshed</span></div>
+
+  <script>
+    const SUPABASE_URL = 'https://hweqkpmehyyheimbazbp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3ZXFrcG1laHl5aGVpbWJhemJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MTgwMzQsImV4cCI6MjEwMTk5NDAzNH0.3FnBKHjBkoKdHQTUmMenZBZxxU-2pWBdkLeyZXC8Ig4';
+    const TABLES = ['orders', 'users', 'products', 'destinations'];
+    const PAGE_SIZE = 50;
+    const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+    const state = { datasets: {}, active: 'orders', search: '', page: 1, sortColumn: null, sortAscending: true, filter: null, refreshId: 0 };
+    const $ = (selector) => document.querySelector(selector);
+    const escapeHTML = (value) => String(value ?? '—').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const money = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value) || 0);
+    const number = (value) => new Intl.NumberFormat('en-IN').format(Number(value) || 0);
+
+    async function fetchAll(table) {
+      const allRows = [];
+      for (let from = 0; ; from += 1000) {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${encodeURIComponent(table)}?select=*`, { headers: { ...headers, Range: `${from}-${from + 999}` } });
+        if (!response.ok) throw new Error(`${table}: ${response.status} ${response.statusText}`);
+        const page = await response.json();
+        allRows.push(...page);
+        if (page.length < 1000) return allRows;
+      }
+    }
+
+    async function load() {
+      const refreshId = ++state.refreshId;
+      $('#refreshButton').classList.add('is-loading');
+      $('#status').className = 'status';
+      $('#status').innerHTML = '<i class="pulse-dot"></i>Refreshing';
+      try {
+        const results = await Promise.all(TABLES.map(async table => [table, await fetchAll(table)]));
+        if (refreshId !== state.refreshId) return;
+        state.datasets = Object.fromEntries(results);
+        render();
+        $('#status').innerHTML = '<i class="pulse-dot"></i>Live connected';
+        showToast('Dashboard refreshed with live data');
+      } catch (error) {
+        console.error(error);
+        $('#status').className = 'status is-error';
+        $('#status').textContent = 'Connection error';
+        $('#tableInfo').textContent = `Unable to load data: ${error.message}`;
+        showToast('Could not refresh Supabase data', true);
+      } finally {
+        $('#refreshButton').classList.remove('is-loading');
+      }
+    }
+
+    function render() {
+      const orders = state.datasets.orders || [];
+      const revenue = orders.reduce((sum, order) => sum + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0), 0);
+      const customers = new Set(orders.map(order => order.user_id).filter(value => value != null)).size;
+      animateMetric('revenue', revenue, money);
+      animateMetric('ordersCount', orders.length, number);
+      animateMetric('customerCount', customers, number);
+      animateMetric('averageOrder', orders.length ? revenue / orders.length : 0, money);
+      $('#updated').textContent = new Date().toLocaleString();
+      renderTabs();
+      renderTrend(orders);
+      renderProducts(orders);
+      renderTable();
+    }
+
+    function animateMetric(id, value, formatter) {
+      const element = document.getElementById(id);
+      element.classList.remove('skeleton');
+      const start = performance.now();
+      const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 760;
+      const ease = (t) => 1 - Math.pow(1 - t, 4);
+      const tick = (now) => {
+        const progress = duration ? Math.min(1, (now - start) / duration) : 1;
+        element.textContent = formatter(value * ease(progress));
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    function renderTabs() {
+      $('#tabs').innerHTML = TABLES.map(table => `<button class="tab ${table === state.active ? 'active' : ''}" data-tab="${table}">${table.toUpperCase()} · ${number((state.datasets[table] || []).length)}</button>`).join('');
+      document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => switchTable(button.dataset.tab)));
+      updateNavigation();
+    }
+
+    function switchTable(table) {
+      if (!TABLES.includes(table)) return;
+      state.active = table;
+      state.page = 1;
+      state.sortColumn = null;
+      state.filter = null;
+      renderTabs();
+      renderTable();
+      document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderTrend(orders) {
+      const totalsByDate = new Map();
+      orders.forEach(order => {
+        const date = String(order.order_date_time || '').slice(0, 10) || 'Unknown';
+        totalsByDate.set(date, (totalsByDate.get(date) || 0) + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0));
+      });
+      const points = [...totalsByDate.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-30);
+      if (!points.length) { $('#lineChart').innerHTML = '<div class="trend-empty">No order data is available yet.</div>'; return; }
+      const width = 760, height = 245, padding = { top: 15, right: 18, bottom: 30, left: 32 };
+      const max = Math.max(...points.map(([, total]) => total), 1);
+      const coords = points.map(([date, total], index) => ({ date, total, x: padding.left + index * (width - padding.left - padding.right) / Math.max(points.length - 1, 1), y: height - padding.bottom - (total / max) * (height - padding.top - padding.bottom) }));
+      const path = coords.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
+      const area = `${path} L ${coords.at(-1).x.toFixed(2)} ${height - padding.bottom} L ${coords[0].x.toFixed(2)} ${height - padding.bottom} Z`;
+      const labels = coords.filter((_, index) => index % Math.max(1, Math.ceil(coords.length / 6)) === 0 || index === coords.length - 1);
+      $('#lineChart').innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Revenue trend chart"><defs><linearGradient id="revenueGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f6de91" stop-opacity=".35"/><stop offset="1" stop-color="#f6de91" stop-opacity="0"/></linearGradient></defs>${[.25,.5,.75].map(fraction => { const y = height - padding.bottom - (height - padding.top - padding.bottom) * fraction; return `<line class="chart-gridline" x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}"/>`; }).join('')}<path class="trend-area" fill="url(#revenueGradient)" d="${area}"/><path class="trend-line" d="${path}"/>${coords.map((point, index) => index % Math.max(1, Math.ceil(coords.length / 8)) === 0 || index === coords.length - 1 ? `<circle class="trend-dot" data-date="${escapeHTML(point.date)}" cx="${point.x}" cy="${point.y}" r="4" style="animation-delay:${.75 + index * .035}s"><title>${escapeHTML(point.date)} · ${money(point.total)} — click to filter</title></circle>` : '').join('')}${labels.map(point => `<text class="chart-axis" text-anchor="middle" x="${point.x}" y="${height - 7}">${escapeHTML(shortDate(point.date))}</text>`).join('')}</svg>`;
+      document.querySelectorAll('.trend-dot[data-date]').forEach(dot => dot.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'date', value: dot.dataset.date, label: shortDate(dot.dataset.date) }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    }
+
+    function renderProducts(orders) {
+      const productRevenue = new Map();
+      orders.forEach(order => { const id = order.product_id ?? 'Unknown'; productRevenue.set(String(id), (productRevenue.get(String(id)) || 0) + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0)); });
+      const products = [...productRevenue.entries()].sort(([, a], [, b]) => b - a).slice(0, 7);
+      if (!products.length) { $('#barChart').innerHTML = '<div class="trend-empty">No order data is available yet.</div>'; $('#barLabels').innerHTML = ''; return; }
+      const max = Math.max(...products.map(([, value]) => value), 1);
+      $('#barChart').innerHTML = products.map(([id, value], index) => `<button class="bar-group" type="button" data-product="${escapeHTML(id)}" data-tooltip="Product ${escapeHTML(id)} · ${money(value)}"><span class="bar-fill" style="--bar-height:${Math.max(5, value / max * 100)}%;transition-delay:${index * 55}ms"></span></button>`).join('');
+      $('#barLabels').innerHTML = products.map(([id]) => `<span>${escapeHTML(String(id).slice(-4))}</span>`).join('');
+      requestAnimationFrame(() => document.querySelectorAll('.bar-fill').forEach(bar => bar.classList.add('is-visible')));
+      document.querySelectorAll('.bar-group[data-product]').forEach(bar => bar.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'product', value: bar.dataset.product, label: `Product ${bar.dataset.product}` }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    }
+
+    function shortDate(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    }
+
+    function currentRows() {
+      let rows = [...(state.datasets[state.active] || [])];
+      if (state.filter && state.active === 'orders') {
+        if (state.filter.type === 'product') rows = rows.filter(row => String(row.product_id) === String(state.filter.value));
+        if (state.filter.type === 'date') rows = rows.filter(row => String(row.order_date_time || '').startsWith(state.filter.value));
+      }
+      if (state.search) {
+        const query = state.search.toLowerCase();
+        rows = rows.filter(row => JSON.stringify(row).toLowerCase().includes(query));
+      }
+      if (state.sortColumn) {
+        rows.sort((a, b) => compareValues(a[state.sortColumn], b[state.sortColumn], state.sortAscending));
+      }
+      return rows;
+    }
+
+    function compareValues(a, b, ascending) {
+      const numericA = Number(a), numericB = Number(b);
+      let result;
+      if (a == null) result = 1;
+      else if (b == null) result = -1;
+      else if (Number.isFinite(numericA) && Number.isFinite(numericB) && String(a).trim() !== '' && String(b).trim() !== '') result = numericA - numericB;
+      else result = String(a).localeCompare(String(b));
+      return ascending ? result : -result;
+    }
+
+    function renderTable() {
+      const rows = currentRows();
+      const columns = [...new Set(rows.flatMap(row => Object.keys(row)))].slice(0, 15);
+      $('#tableInfo').textContent = `${number(rows.length)} matching record${rows.length === 1 ? '' : 's'} in ${state.active}`;
+      $('#filterChip').innerHTML = state.filter ? `<span class="filter-chip">${escapeHTML(state.filter.label)} <button id="clearFilter" title="Clear filter">&times;</button></span>` : '';
+      $('#clearFilter')?.addEventListener('click', () => { state.filter = null; state.page = 1; renderTable(); });
+      if (!rows.length) { $('#dataTable').innerHTML = '<tbody><tr><td class="table-empty">No matching records found.</td></tr></tbody>'; renderPagination(0); return; }
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      state.page = Math.min(state.page, totalPages);
+      const start = (state.page - 1) * PAGE_SIZE;
+      const pageRows = rows.slice(start, start + PAGE_SIZE);
+      $('#dataTable').innerHTML = `<thead><tr>${columns.map(column => `<th data-sort-column="${escapeHTML(column)}">${escapeHTML(column)}${state.sortColumn === column ? `<span class="sort">${state.sortAscending ? '↑' : '↓'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>${pageRows.map((row, index) => `<tr style="--row-index:${index % 12}">${columns.map(column => { const value = typeof row[column] === 'object' ? JSON.stringify(row[column]) : row[column]; return `<td title="${escapeHTML(value)}">${escapeHTML(value)}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+      document.querySelectorAll('[data-sort-column]').forEach(header => header.addEventListener('click', () => { const column = header.dataset.sortColumn; if (state.sortColumn === column) state.sortAscending = !state.sortAscending; else { state.sortColumn = column; state.sortAscending = true; } renderTable(); }));
+      renderPagination(rows.length);
+    }
+
+    function renderPagination(totalRows) {
+      const paginator = $('#pagination');
+      if (totalRows <= PAGE_SIZE) { paginator.hidden = true; return; }
+      paginator.hidden = false;
+      const pages = Math.ceil(totalRows / PAGE_SIZE), start = (state.page - 1) * PAGE_SIZE + 1, end = Math.min(state.page * PAGE_SIZE, totalRows);
+      paginator.innerHTML = `<span>Showing <strong>${number(start)}–${number(end)}</strong> of <strong>${number(totalRows)}</strong> rows</span><span class="pagination-controls"><button class="small-button" id="previousPage" ${state.page === 1 ? 'disabled' : ''}>← Prev</button><span>Page ${state.page} / ${pages}</span><button class="small-button" id="nextPage" ${state.page === pages ? 'disabled' : ''}>Next →</button></span>`;
+      $('#previousPage')?.addEventListener('click', () => { state.page--; renderTable(); });
+      $('#nextPage')?.addEventListener('click', () => { state.page++; renderTable(); });
+    }
+
+    function exportCurrentTable() {
+      const rows = currentRows();
+      if (!rows.length) { showToast('There is no data to export', true); return; }
+      const columns = [...new Set(rows.flatMap(row => Object.keys(row)))];
+      const csv = [columns, ...rows.map(row => columns.map(column => typeof row[column] === 'object' ? JSON.stringify(row[column]) : row[column] ?? ''))].map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      const link = Object.assign(document.createElement('a'), { href: url, download: `${state.active}-export-${new Date().toISOString().slice(0, 10)}.csv` });
+      document.body.append(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      showToast(`${state.active} CSV downloaded`);
+    }
+
+    let toastTimer;
+    function showToast(message, isError = false) {
+      const toast = $('#toast');
+      $('#toastText').textContent = message;
+      toast.style.borderColor = isError ? 'rgba(255,113,71,.35)' : 'rgba(56,221,198,.22)';
+      toast.querySelector('.toast-dot').style.background = isError ? 'var(--orange)' : 'var(--mint)';
+      toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2900);
+    }
+
+    $('#search').addEventListener('input', event => { state.search = event.target.value.trim(); state.page = 1; $('#clearSearch').classList.toggle('visible', !!state.search); renderTable(); });
+    $('#clearSearch').addEventListener('click', () => { $('#search').value = ''; state.search = ''; state.page = 1; $('#clearSearch').classList.remove('visible'); renderTable(); $('#search').focus(); });
+    $('#refreshButton').addEventListener('click', load);
+    $('#exportButton').addEventListener('click', exportCurrentTable);
+    $('#menuButton').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+    document.querySelectorAll('.metric-card[data-table]').forEach(card => card.addEventListener('click', () => switchTable(card.dataset.table)));
+    document.querySelectorAll('.nav-item[data-nav]').forEach(item => item.addEventListener('click', () => navigate(item.dataset.nav)));
+    document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); $('#search').focus(); } if (event.key === 'Escape') $('#sidebar').classList.remove('open'); });
+
+    function navigate(target) {
+      if (target === 'overview') { window.scrollTo({ top: 0, behavior: 'smooth' }); state.active = 'orders'; state.filter = null; renderTabs(); renderTable(); }
+      else if (target === 'insights') document.querySelector('.dashboard-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (TABLES.includes(target)) switchTable(target);
+      $('#sidebar').classList.remove('open'); updateNavigation();
+    }
+    function updateNavigation() {
+      document.querySelectorAll('.nav-item').forEach(item => { const target = item.dataset.nav; const active = target === 'overview' ? state.active === 'orders' : target === 'insights' ? false : target === state.active; item.classList.toggle('active', active); });
+    }
+
+    load();
+  </script>
+</body>
+</html>
