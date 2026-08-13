@@ -595,6 +595,11 @@
     }
 
     load();
+
+// Automatically fetch new Supabase data every 10 seconds
+setInterval(() => {
+  if (document.visibilityState === 'visible') load();
+}, 10000);
   </script>
 </body>
 </html>
