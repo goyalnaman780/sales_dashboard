@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/outputs/supabase%20dashboard.html",
+      "destination": "/outputs/supabase-dashboard.html"
+    },
+    {
+      "source": "/outputs/supabase%20dashboard",
+      "destination": "/outputs/supabase-dashboard.html"
+    },
+    {
+      "source": "/supabase-dashboard",
+      "destination": "/outputs/supabase-dashboard.html"
+    }
+  ]
+}

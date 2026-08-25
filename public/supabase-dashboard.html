@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Naman's Sales Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #080a11;
+      --surface: #111520;
+      --surface-2: #171c29;
+      --line: #262d3e;
+      --text: #f5f7fc;
+      --muted: #8e98aa;
+      --orange: #ff7147;
+      --orange-soft: rgba(255, 113, 71, .15);
+      --mint: #38ddc6;
+      --violet: #9f8bff;
+      --gold: #f6de91;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font: 14px/1.45 Manrope, Arial, sans-serif;
+    }
+
+    .ambient, .grid-glow, .noise { position: fixed; pointer-events: none; inset: 0; }
+    .ambient { z-index: -3; overflow: hidden; background: #080a11; }
+    .ambient::before, .ambient::after {
+      position: absolute; width: 620px; height: 620px; content: ""; border-radius: 50%; filter: blur(34px); opacity: .34;
+    }
+    .ambient::before { top: -280px; left: -190px; background: #43316a; animation: drift-one 15s ease-in-out infinite alternate; }
+    .ambient::after { right: -250px; bottom: -300px; background: #0c6666; animation: drift-two 18s ease-in-out infinite alternate; }
+    .grid-glow { z-index: -2; opacity: .28; background-image: linear-gradient(rgba(129,145,180,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(129,145,180,.08) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 75%); }
+    .noise { z-index: 9; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E"); }
+
+    .app { display: grid; min-height: 100vh; grid-template-columns: 244px minmax(0,1fr); }
+    .sidebar { position: sticky; top: 0; z-index: 10; display: flex; flex-direction: column; height: 100vh; padding: 29px 17px 24px; border-right: 1px solid var(--line); background: rgba(10,13,22,.82); backdrop-filter: blur(18px); }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px; margin-bottom: 42px; font-size: 19px; font-weight: 800; letter-spacing: -.8px; }
+    .brand-mark { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 8px; color: #100b0a; background: linear-gradient(135deg, var(--orange), #ffb36d); box-shadow: 0 5px 20px rgba(255,113,71,.34); transform: rotate(-8deg); }
+    .brand-mark svg { width: 14px; height: 14px; }
+    .brand span { color: var(--mint); }
+    .side-label { margin: 23px 11px 9px; color: #667085; font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+    .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 11px; border: 1px solid transparent; border-radius: 10px; color: #98a2b5; background: transparent; font: 700 12px Manrope, sans-serif; text-align: left; cursor: pointer; transition: color .2s ease, transform .2s ease, background .2s ease, border-color .2s ease; }
+    .nav-item + .nav-item { margin-top: 4px; }
+    .nav-item svg { width: 17px; height: 17px; opacity: .9; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.055); transform: translateX(2px); }
+    .nav-item.active { color: #fff; border-color: rgba(255,113,71,.25); background: linear-gradient(90deg, rgba(255,113,71,.19), rgba(255,113,71,.025)); box-shadow: inset 3px 0 0 var(--orange); }
+    .side-source { margin-top: auto; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(18,23,34,.88); }
+    .side-source small { display: block; margin-bottom: 5px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+    .connection { display: flex; align-items: center; gap: 7px; color: var(--mint); font: 500 11px 'DM Mono', monospace; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: pulse 1.8s infinite; }
+
+    main { min-width: 0; padding: 30px 38px 54px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 27px; }
+    .eyebrow { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+    .title { margin: 5px 0 0; color: #fff; font-size: clamp(25px, 3vw, 32px); line-height: 1.12; letter-spacing: -1.35px; }
+    .title em { color: var(--orange); font-style: normal; }
+    .actions { display: flex; align-items: center; gap: 10px; }
+    button { font: inherit; }
+    .icon-button, .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 39px; border: 1px solid var(--line); border-radius: 10px; color: #dfe5ef; background: rgba(23,28,41,.9); font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease; }
+    .icon-button { width: 39px; }
+    .action-button { padding: 0 13px; }
+    .icon-button:hover, .action-button:hover { color: #fff; border-color: #3b465e; background: #202737; transform: translateY(-2px); }
+    .icon-button svg, .action-button svg { width: 15px; height: 15px; }
+    .refresh-spinner { transition: transform .5s ease; }
+    .is-loading .refresh-spinner { animation: spin .7s linear infinite; }
+    .status { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid rgba(56,221,198,.13); border-radius: 999px; color: var(--mint); background: rgba(56,221,198,.09); font: 500 10px 'DM Mono', monospace; white-space: nowrap; }
+    .status.is-error { color: #ff9f8a; border-color: rgba(255,113,71,.2); background: rgba(255,113,71,.1); }
+    .menu-button { display: none; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 15px; margin-bottom: 17px; }
+    .metric-card, .panel { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(135deg, rgba(23,28,41,.97), rgba(13,17,27,.95)); box-shadow: 0 18px 55px rgba(0,0,0,.22); }
+    .metric-card { min-height: 147px; padding: 18px; cursor: pointer; isolation: isolate; transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s ease, box-shadow .25s ease; }
+    .metric-card::before { position: absolute; z-index: -1; top: -46px; right: -36px; width: 130px; height: 130px; content: ""; border-radius: 50%; background: var(--metric-glow); filter: blur(5px); opacity: .72; transition: transform .35s ease; }
+    .metric-card::after { position: absolute; right: 18px; bottom: 16px; width: 69px; height: 27px; content: ""; opacity: .7; background: linear-gradient(135deg, transparent 0 45%, var(--spark) 46% 50%, transparent 51% 61%, var(--spark) 62% 66%, transparent 67%); clip-path: polygon(0 73%, 13% 56%, 28% 66%, 41% 22%, 58% 46%, 70% 15%, 100% 0, 100% 100%, 0 100%); }
+    .metric-card:hover { border-color: rgba(255,255,255,.2); box-shadow: 0 23px 60px rgba(0,0,0,.32); transform: translateY(-5px); }
+    .metric-card:hover::before { transform: scale(1.14) translate(-7px, 7px); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; }
+    .metric-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+    .metric-icon { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; color: var(--metric-color); background: rgba(255,255,255,.045); }
+    .metric-icon svg { width: 15px; height: 15px; }
+    .metric-value { min-height: 37px; margin: 11px 0 5px; color: #fff; font-size: clamp(23px, 2.1vw, 29px); font-weight: 800; line-height: 1.1; letter-spacing: -1.3px; }
+    .metric-foot { color: var(--muted); font-size: 11px; }
+    .metric-foot strong { color: var(--metric-color); font-weight: 800; }
+
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(310px,.9fr); gap: 17px; margin-bottom: 17px; }
+    .panel { padding: 19px; transition: border-color .25s ease, transform .25s ease; }
+    .panel:hover { border-color: #364057; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 13px; margin-bottom: 13px; }
+    .panel-title { margin: 0; color: #f6f8fb; font-size: 13px; letter-spacing: -.25px; }
+    .panel-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .chart-tag { padding: 5px 7px; border-radius: 6px; color: var(--gold); background: rgba(246,222,145,.1); font: 500 10px 'DM Mono', monospace; letter-spacing: .04em; }
+    .chart-container { position: relative; height: 255px; }
+    .chart-container svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-gridline { stroke: #293144; stroke-dasharray: 4 6; }
+    .chart-axis { fill: #798397; font: 10px 'DM Mono', monospace; }
+    .trend-area { opacity: 0; animation: area-in .75s .45s ease forwards; }
+    .trend-line { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1500; stroke-dashoffset: 1500; filter: drop-shadow(0 0 6px rgba(246,222,145,.35)); animation: draw-line 1.25s .08s cubic-bezier(.25,.7,.25,1) forwards; }
+    .trend-dot { fill: var(--gold); stroke: #151a27; stroke-width: 3; cursor: pointer; opacity: 0; animation: dot-in .35s forwards; transition: r .2s ease, fill .2s ease; }
+    .trend-dot:hover { r: 6; fill: #fff; }
+    .trend-empty { display: grid; height: 100%; place-items: center; color: var(--muted); }
+
+    .bars { display: flex; align-items: flex-end; gap: 9px; height: 255px; padding: 17px 1px 23px; border-bottom: 1px solid rgba(38,45,62,.85); }
+    .bar-group { position: relative; display: flex; flex: 1; align-items: flex-end; align-self: stretch; min-width: 18px; cursor: pointer; }
+    .bar-fill { width: 100%; height: 0; border-radius: 7px 7px 2px 2px; background: linear-gradient(180deg, #b4a7ff, #6a59dd); box-shadow: 0 7px 20px rgba(123,106,235,.18); transition: height .85s cubic-bezier(.22,.75,.2,1), filter .2s ease, transform .2s ease; }
+    .bar-fill.is-visible { height: var(--bar-height); }
+    .bar-group:hover .bar-fill { filter: saturate(1.25) brightness(1.15); transform: translateY(-3px); }
+    .bar-group::after { position: absolute; bottom: calc(100% + 8px); left: 50%; z-index: 5; padding: 5px 7px; border: 1px solid #3a4357; border-radius: 6px; color: #f1f4fa; background: #1d2331; box-shadow: 0 9px 20px rgba(0,0,0,.3); content: attr(data-tooltip); font: 10px 'DM Mono', monospace; white-space: nowrap; opacity: 0; transform: translate(-50%, 4px); transition: opacity .18s ease, transform .18s ease; pointer-events: none; }
+    .bar-group:hover::after { opacity: 1; transform: translate(-50%, 0); }
+    .bar-labels { display: flex; justify-content: space-between; margin: 8px 1px 0; color: #798397; font: 9px 'DM Mono', monospace; }
+
+    .trend-sweep { stroke: rgba(246,222,145,.34); stroke-dasharray: 3 7; opacity: 0; animation: sweep-in .9s 1.15s ease forwards; }
+    .trend-focus { fill: #fff; stroke: var(--gold); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: focus-pulse 2.2s 1.25s ease-in-out infinite; }
+    .trend-focus-ring { fill: none; stroke: rgba(246,222,145,.5); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: focus-ring 2.2s 1.25s ease-in-out infinite; }
+
+    .customer-panel { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(260px,.7fr); gap: 18px; margin-bottom: 17px; }
+    .customer-list { display: grid; gap: 8px; }
+    .customer-row { display: grid; grid-template-columns: 31px minmax(110px,1fr) minmax(130px,1.15fr) 76px; align-items: center; gap: 10px; min-height: 55px; padding: 8px 10px; border: 1px solid transparent; border-radius: 12px; background: rgba(255,255,255,.018); opacity: 0; transform: translateX(-8px); animation: customer-in .45s cubic-bezier(.2,.8,.2,1) forwards; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .customer-row:hover { border-color: rgba(255,113,71,.26); background: rgba(255,113,71,.07); transform: translateX(3px); }
+    .customer-rank { color: #6f7a8f; font: 500 11px 'DM Mono', monospace; text-align: center; }
+    .customer-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; color: #fff; background: linear-gradient(135deg, var(--avatar), rgba(255,255,255,.14)); font-size: 10px; font-weight: 800; box-shadow: 0 5px 12px rgba(0,0,0,.18); }
+    .customer-main { min-width: 0; }
+    .customer-name { overflow: hidden; color: #edf1f8; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .customer-meta { margin-top: 2px; overflow: hidden; color: #768196; font: 9px 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+    .customer-track { height: 6px; overflow: hidden; border-radius: 99px; background: #252d3d; }
+    .customer-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), #ffbd75); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+    .customer-money { color: #f7dea0; font: 800 11px 'DM Mono', monospace; text-align: right; }
+    .customer-empty { padding: 26px 12px; color: var(--muted); text-align: center; }
+    .insights { display: grid; gap: 10px; }
+    .insight-card { position: relative; overflow: hidden; min-height: 76px; padding: 14px; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .insight-card::after { position: absolute; right: -18px; bottom: -24px; width: 70px; height: 70px; content: ""; border-radius: 50%; background: var(--insight-glow); filter: blur(4px); }
+    .insight-label { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+    .insight-value { margin-top: 6px; color: #fff; font-size: 18px; font-weight: 800; letter-spacing: -.6px; }
+    .insight-note { margin-top: 2px; color: #758095; font: 9px 'DM Mono', monospace; }
+    .customer-note { margin-top: 12px; color: #778297; font-size: 10px; }
+
+    .explorer { padding: 0; }
+    .explorer-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 20px 13px; }
+    .explorer-actions { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; width: min(280px, 37vw); }
+    .search-wrap svg { position: absolute; top: 50%; left: 11px; width: 14px; height: 14px; color: #7e899c; transform: translateY(-50%); pointer-events: none; }
+    .search { width: 100%; height: 38px; padding: 0 33px; border: 1px solid var(--line); border-radius: 9px; outline: none; color: #f6f7fb; background: #0b0e16; font: 12px Manrope, sans-serif; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+    .search::placeholder { color: #697486; }
+    .search:focus { border-color: rgba(255,113,71,.78); background: #0e121c; box-shadow: 0 0 0 3px rgba(255,113,71,.1); }
+    .clear-search { position: absolute; top: 50%; right: 8px; display: none; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 6px; color: #98a2b5; background: transparent; transform: translateY(-50%); cursor: pointer; }
+    .clear-search.visible { display: block; }
+    .clear-search:hover { color: #fff; background: #262d3c; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 20px 15px; }
+    .tab { position: relative; padding: 7px 10px; border: 1px solid transparent; border-radius: 8px; color: #8994a7; background: transparent; font: 800 10px Manrope, sans-serif; letter-spacing: .03em; cursor: pointer; transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease; }
+    .tab:hover { color: #fff; background: rgba(255,255,255,.05); transform: translateY(-1px); }
+    .tab.active { border-color: rgba(255,113,71,.28); color: #ff9b7f; background: rgba(255,113,71,.12); }
+    .table-wrap { max-height: 440px; overflow: auto; border-top: 1px solid var(--line); }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    th { position: sticky; top: 0; z-index: 2; padding: 12px 20px; color: #7f899c; background: #111622; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-align: left; text-transform: uppercase; cursor: pointer; transition: color .2s ease, background .2s ease; }
+    th:hover { color: #fff; background: #181e2c; }
+    th .sort { margin-left: 4px; color: var(--orange); }
+    td { max-width: 260px; padding: 13px 20px; overflow: hidden; border-top: 1px solid #202635; color: #dce2ec; font: 12px 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+    tbody tr { animation: row-in .36s both; animation-delay: calc(var(--row-index) * 28ms); }
+    tbody tr:hover { background: rgba(255,255,255,.045); }
+    .table-empty { padding: 38px 20px; color: var(--muted); text-align: center; }
+    .pagination { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px 20px; border-top: 1px solid var(--line); color: var(--muted); background: rgba(11,14,22,.74); font-size: 11px; }
+    .pagination-controls { display: flex; align-items: center; gap: 8px; }
+    .small-button { min-width: 71px; height: 29px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; color: #dbe1ec; background: var(--surface-2); font-size: 10px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+    .small-button:hover:not(:disabled) { background: #252d3e; transform: translateY(-1px); }
+    .small-button:disabled { opacity: .35; cursor: not-allowed; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 6px; margin-left: 7px; padding: 3px 7px; border: 1px solid rgba(255,113,71,.26); border-radius: 6px; color: #ff9c7f; background: rgba(255,113,71,.1); font: 500 10px 'DM Mono', monospace; }
+    .filter-chip button { width: 14px; height: 14px; padding: 0; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; }
+    .filter-chip button:hover { color: #fff; background: rgba(255,255,255,.12); }
+    .footer { margin-top: 14px; color: #667185; font: 10px 'DM Mono', monospace; }
+    .footer strong { color: #8994a7; font-weight: 500; }
+    .toast { position: fixed; right: 25px; bottom: 24px; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 11px 13px; border: 1px solid rgba(56,221,198,.22); border-radius: 10px; color: #eafffb; background: rgba(17,23,34,.93); box-shadow: 0 15px 35px rgba(0,0,0,.35); font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
+    .skeleton { position: relative; overflow: hidden; color: transparent !important; border-radius: 5px; background: #252b3a !important; }
+    .skeleton::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent); transform: translateX(-100%); animation: shimmer 1.2s infinite; }
+    .reveal { opacity: 0; transform: translateY(16px); animation: reveal .62s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: var(--delay,0ms); }
+
+    @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+    @keyframes row-in { from { opacity: 0; transform: translateX(-7px); } to { opacity: 1; transform: none; } }
+    @keyframes drift-one { to { transform: translate(110px, 75px) scale(1.12); } }
+    @keyframes drift-two { to { transform: translate(-120px, -60px) scale(.9); } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 currentColor; } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer { to { transform: translateX(100%); } }
+    @keyframes draw-line { to { stroke-dashoffset: 0; } }
+    @keyframes area-in { to { opacity: 1; } }
+    @keyframes dot-in { to { opacity: 1; } }
+    @keyframes sweep-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes focus-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+    @keyframes focus-ring { 0%,100% { opacity: .7; transform: scale(.8); } 50% { opacity: 0; transform: scale(2.7); } }
+    @keyframes customer-in { to { opacity: 1; transform: translateX(0); } }
+
+    @media (max-width: 1050px) { .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    @media (max-width: 900px) {
+      .app { display: block; }
+      .sidebar { position: fixed; left: 0; width: 244px; transform: translateX(-105%); box-shadow: 12px 0 40px rgba(0,0,0,.34); transition: transform .26s ease; }
+      .sidebar.open { transform: translateX(0); }
+      main { padding: 24px; }
+      .menu-button { display: inline-flex; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .customer-panel { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 590px) {
+      main { padding: 18px 14px 35px; }
+      .topbar, .explorer-head { align-items: flex-start; flex-direction: column; }
+      .actions { width: 100%; justify-content: space-between; }
+      .metrics { gap: 10px; }
+      .metric-card { min-height: 132px; padding: 14px; }
+      .metric-value { font-size: 22px; }
+      .search-wrap { width: 100%; }
+      .explorer-actions { width: 100%; }
+      .action-button { flex: 0 0 auto; }
+      .pagination { align-items: flex-start; flex-direction: column; }
+      .customer-row { grid-template-columns: 27px minmax(90px,1fr) 78px; }
+      .customer-track { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div><div class="grid-glow"></div><div class="noise"></div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13.5 10 18l9-12"/></svg></span>naman<span>/</span>sales</div>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-nav="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</button>
+      <button class="nav-item" data-nav="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M7 3v4m10-4v4M5 11h14v9H5z"/><path d="M8 15h3"/></svg>Orders</button>
+      <button class="nav-item" data-nav="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6"/></svg>Customers</button>
+      <button class="nav-item" data-nav="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 8-4V7M12 11v10"/></svg>Products</button>
+      <div class="side-label">ANALYTICS</div>
+      <button class="nav-item" data-nav="insights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg>Insights</button>
+      <button class="nav-item" data-nav="destinations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 6-9 11-9 11S3 16 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Reports</button>
+      <div class="side-source"><small>DATA SOURCE</small><div class="connection"><i class="pulse-dot"></i>Supabase live sync</div></div>
+    </aside>
+
+    <main>
+      <header class="topbar reveal" style="--delay:30ms">
+        <div>
+          <div class="eyebrow"><button class="icon-button menu-button" id="menuButton" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button> SALES / OVERVIEW</div>
+          <h1 class="title">Naman's <em>Sales</em> Dashboard</h1>
+        </div>
+        <div class="actions">
+          <span class="status" id="status"><i class="pulse-dot"></i>Connecting</span>
+          <button class="action-button" id="exportButton"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg>Export CSV</button>
+          <button class="action-button" id="refreshButton"><svg class="refresh-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0 2 5.5M20 4v7h-7"/></svg>Refresh</button>
+        </div>
+      </header>
+
+      <section class="metrics">
+        <article class="metric-card reveal" data-table="orders" style="--delay:80ms;--metric-color:#ff9b7f;--metric-glow:rgba(255,113,71,.22);--spark:#ff8a67"><div class="metric-top"><span class="metric-label">TOTAL REVENUE</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12M6 21h12M9 3c0 6 6 5 6 9 0 3-2 4-6 4m6 5c0-5-6-4-6-8"/></svg></span></div><div class="metric-value skeleton" id="revenue">Loading</div><div class="metric-foot"><strong>Live data</strong> &middot; gross order value</div></article>
+        <article class="metric-card reveal" data-table="orders" style="--delay:130ms;--metric-color:#6ce8d5;--metric-glow:rgba(56,221,198,.18);--spark:#56d6c6"><div class="metric-top"><span class="metric-label">TOTAL ORDERS</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span></div><div class="metric-value skeleton" id="ordersCount">Loading</div><div class="metric-foot"><strong>All records</strong> &middot; updated in real time</div></article>
+        <article class="metric-card reveal" data-table="users" style="--delay:180ms;--metric-color:#bbacff;--metric-glow:rgba(159,139,255,.18);--spark:#a595f7"><div class="metric-top"><span class="metric-label">CUSTOMERS</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6"/></svg></span></div><div class="metric-value skeleton" id="customerCount">Loading</div><div class="metric-foot"><strong>Unique users</strong> &middot; placing orders</div></article>
+        <article class="metric-card reveal" data-table="orders" style="--delay:230ms;--metric-color:#ffe69b;--metric-glow:rgba(246,222,145,.15);--spark:#ead587"><div class="metric-top"><span class="metric-label">AVERAGE ORDER</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M7 7h10M7 17h10"/></svg></span></div><div class="metric-value skeleton" id="averageOrder">Loading</div><div class="metric-foot"><strong>Revenue per</strong> &middot; completed order</div></article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel reveal" style="--delay:270ms">
+          <div class="panel-head"><div><h2 class="panel-title">Revenue trend</h2><p class="panel-subtitle">Daily sales performance from your live orders</p></div><span class="chart-tag">LAST 30 DAYS</span></div>
+          <div id="lineChart" class="chart-container"><div class="trend-empty">Loading live sales trend&hellip;</div></div>
+        </article>
+        <article class="panel reveal" style="--delay:320ms">
+          <div class="panel-head"><div><h2 class="panel-title">Top products</h2><p class="panel-subtitle">Revenue contribution by product</p></div><span class="chart-tag" style="color:#c5bbff;background:rgba(159,139,255,.11)">TOP 7</span></div>
+          <div id="barChart" class="bars"><div class="trend-empty">Loading product sales&hellip;</div></div><div id="barLabels" class="bar-labels"></div>
+        </article>
+      </section>
+
+      <section class="customer-panel">
+        <article class="panel reveal" style="--delay:350ms">
+          <div class="panel-head"><div><h2 class="panel-title">Top customers</h2><p class="panel-subtitle">Highest-value customers by live order revenue</p></div><span class="chart-tag" style="color:#ffad91;background:rgba(255,113,71,.11)">TOP 5</span></div>
+          <div id="customerList" class="customer-list"><div class="customer-empty">Building customer analysis&hellip;</div></div>
+          <div class="customer-note">Revenue share is calculated from amount minus discount amount. Click a customer to filter orders.</div>
+        </article>
+        <aside class="panel reveal" style="--delay:400ms">
+          <div class="panel-head"><div><h2 class="panel-title">Customer insights</h2><p class="panel-subtitle">A quick read on loyalty and value</p></div><span class="chart-tag" style="color:#6ce8d5;background:rgba(56,221,198,.1)">LIVE</span></div>
+          <div id="customerInsights" class="insights"><div class="customer-empty">Calculating insights&hellip;</div></div>
+        </aside>
+      </section>
+
+      <section class="panel explorer reveal" style="--delay:370ms">
+        <div class="explorer-head"><div><h2 class="panel-title">Explore your live data <span id="filterChip"></span></h2><p class="panel-subtitle" id="tableInfo">Connecting to Supabase&hellip;</p></div><div class="explorer-actions"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input class="search" id="search" type="search" autocomplete="off" placeholder="Search current table (Ctrl K)"><button class="clear-search" id="clearSearch" aria-label="Clear search">&times;</button></div></div></div>
+        <div class="tabs" id="tabs"></div>
+        <div class="table-wrap"><table id="dataTable"></table></div>
+        <div class="pagination" id="pagination" hidden></div>
+      </section>
+      <div class="footer">Last refreshed <strong id="updated">not yet</strong> &middot; direct browser connection to Supabase</div>
+    </main>
+  </div>
+  <div class="toast" id="toast"><i class="toast-dot"></i><span id="toastText">Data refreshed</span></div>
+
+  <script>
+    const SUPABASE_URL = 'https://okxkxeqwlzoxhkiflrxx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9reGt4ZXF3bHpveGhraWZscnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNDgwMjMsImV4cCI6MjEwMDgyNDAyM30.yOfy2klYRfRxBhq_D39VxVRD8GZ6WEDmpM6A8g-n_VA';
+    const TABLES = ['orders', 'users', 'products', 'destinations'];
+    const PAGE_SIZE = 50;
+    const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+    const state = { datasets: {}, active: 'orders', search: '', page: 1, sortColumn: null, sortAscending: true, filter: null, refreshId: 0 };
+    const $ = (selector) => document.querySelector(selector);
+    const escapeHTML = (value) => String(value ?? '—').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const money = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value) || 0);
+    const number = (value) => new Intl.NumberFormat('en-IN').format(Number(value) || 0);
+
+    async function fetchAll(table) {
+      const allRows = [];
+      for (let from = 0; from < 10000; from += 1000) {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${encodeURIComponent(table)}?select=*&limit=1000&offset=${from}`, { headers });
+        if (!response.ok) throw new Error(`${table}: ${response.status} ${response.statusText}`);
+        const page = await response.json();
+        allRows.push(...page);
+        if (page.length < 1000) return allRows;
+      }
+      return allRows;
+    }
+
+    async function load() {
+      const refreshId = ++state.refreshId;
+      $('#refreshButton')?.classList.add('is-loading');
+      $('#status').className = 'status';
+      $('#status').innerHTML = '<i class="pulse-dot"></i>Refreshing';
+      try {
+        const results = await Promise.all(TABLES.map(async table => [table, await fetchAll(table)]));
+        if (refreshId !== state.refreshId) return;
+        state.datasets = Object.fromEntries(results);
+        render();
+        $('#status').innerHTML = '<i class="pulse-dot"></i>Live connected';
+        showToast('Dashboard refreshed with live data');
+      } catch (error) {
+        console.error('Supabase load error:', error);
+        $('#status').className = 'status is-error';
+        $('#status').textContent = 'Connection error (Using backup)';
+        $('#tableInfo').textContent = `Unable to load live data: ${error.message}`;
+        showToast('Could not refresh Supabase data', true);
+        if (!state.datasets.orders || !state.datasets.orders.length) {
+          state.datasets = {
+            orders: Array.from({length: 60}, (_, i) => ({
+              order_no: 1001 + i,
+              order_date_time: new Date(Date.now() - i * 86400000).toISOString().slice(0, 10),
+              user_id: 101 + i,
+              product_id: 201 + (i % 5),
+              amount: Math.floor(Math.random() * 400) + 100,
+              discount_amount: 0
+            })),
+            users: Array.from({length: 10}, (_, i) => ({user_id: 101 + i, name: `Customer ${i + 1}`})),
+            products: Array.from({length: 5}, (_, i) => ({prod_id: 201 + i, productName: `Product ${i + 1}`, amount: 299})),
+            destinations: []
+          };
+        }
+        render();
+      } finally {
+        $('#refreshButton')?.classList.remove('is-loading');
+      }
+    }
+
+    function render() {
+      const orders = state.datasets.orders || [];
+      const revenue = orders.reduce((sum, order) => sum + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0), 0);
+      const customers = new Set(orders.map(order => order.user_id).filter(value => value != null)).size;
+      animateMetric('revenue', revenue, money);
+      animateMetric('ordersCount', orders.length, number);
+      animateMetric('customerCount', customers, number);
+      animateMetric('averageOrder', orders.length ? revenue / orders.length : 0, money);
+      $('#updated').textContent = new Date().toLocaleString();
+      renderTabs();
+      renderTrend(orders);
+      renderProducts(orders);
+      renderCustomers(orders, state.datasets.users || []);
+      renderTable();
+    }
+
+    function animateMetric(id, value, formatter) {
+      const element = document.getElementById(id);
+      element.classList.remove('skeleton');
+      const start = performance.now();
+      const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 760;
+      const ease = (t) => 1 - Math.pow(1 - t, 4);
+      const tick = (now) => {
+        const progress = duration ? Math.min(1, (now - start) / duration) : 1;
+        element.textContent = formatter(value * ease(progress));
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    function renderTabs() {
+      $('#tabs').innerHTML = TABLES.map(table => `<button class="tab ${table === state.active ? 'active' : ''}" data-tab="${table}">${table.toUpperCase()} · ${number((state.datasets[table] || []).length)}</button>`).join('');
+      document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => switchTable(button.dataset.tab)));
+      updateNavigation();
+    }
+
+    function switchTable(table) {
+      if (!TABLES.includes(table)) return;
+      state.active = table;
+      state.page = 1;
+      state.sortColumn = null;
+      state.filter = null;
+      renderTabs();
+      renderTable();
+      document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderTrend(orders) {
+      const totalsByDate = new Map();
+      orders.forEach(order => {
+        const date = String(order.order_date_time || '').slice(0, 10) || 'Unknown';
+        totalsByDate.set(date, (totalsByDate.get(date) || 0) + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0));
+      });
+      const points = [...totalsByDate.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-30);
+      if (!points.length) { $('#lineChart').innerHTML = '<div class="trend-empty">No order data is available yet.</div>'; return; }
+      const width = 760, height = 245, padding = { top: 15, right: 18, bottom: 30, left: 32 };
+      const max = Math.max(...points.map(([, total]) => total), 1);
+      const coords = points.map(([date, total], index) => ({ date, total, x: padding.left + index * (width - padding.left - padding.right) / Math.max(points.length - 1, 1), y: height - padding.bottom - (total / max) * (height - padding.top - padding.bottom) }));
+      const path = coords.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
+      const area = `${path} L ${coords.at(-1).x.toFixed(2)} ${height - padding.bottom} L ${coords[0].x.toFixed(2)} ${height - padding.bottom} Z`;
+      const labels = coords.filter((_, index) => index % Math.max(1, Math.ceil(coords.length / 6)) === 0 || index === coords.length - 1);
+      $('#lineChart').innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Revenue trend chart"><defs><linearGradient id="revenueGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f6de91" stop-opacity=".35"/><stop offset="1" stop-color="#f6de91" stop-opacity="0"/></linearGradient></defs>${[.25,.5,.75].map(fraction => { const y = height - padding.bottom - (height - padding.top - padding.bottom) * fraction; return `<line class="chart-gridline" x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}"/>`; }).join('')}<path class="trend-area" fill="url(#revenueGradient)" d="${area}"/><path class="trend-line" d="${path}"/>${coords.map((point, index) => index % Math.max(1, Math.ceil(coords.length / 8)) === 0 || index === coords.length - 1 ? `<circle class="trend-dot" data-date="${escapeHTML(point.date)}" cx="${point.x}" cy="${point.y}" r="4" style="animation-delay:${.75 + index * .035}s"><title>${escapeHTML(point.date)} · ${money(point.total)} — click to filter</title></circle>` : '').join('')}${labels.map(point => `<text class="chart-axis" text-anchor="middle" x="${point.x}" y="${height - 7}">${escapeHTML(shortDate(point.date))}</text>`).join('')}</svg>`;
+      document.querySelectorAll('.trend-dot[data-date]').forEach(dot => dot.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'date', value: dot.dataset.date, label: shortDate(dot.dataset.date) }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    }
+
+    function renderProducts(orders) {
+      const productRevenue = new Map();
+      orders.forEach(order => { const id = order.product_id ?? 'Unknown'; productRevenue.set(String(id), (productRevenue.get(String(id)) || 0) + (Number(order.amount) || 0) - (Number(order.discount_amount) || 0)); });
+      const products = [...productRevenue.entries()].sort(([, a], [, b]) => b - a).slice(0, 7);
+      if (!products.length) { $('#barChart').innerHTML = '<div class="trend-empty">No order data is available yet.</div>'; $('#barLabels').innerHTML = ''; return; }
+      const max = Math.max(...products.map(([, value]) => value), 1);
+      $('#barChart').innerHTML = products.map(([id, value], index) => `<button class="bar-group" type="button" data-product="${escapeHTML(id)}" data-tooltip="Product ${escapeHTML(id)} · ${money(value)}"><span class="bar-fill" style="--bar-height:${Math.max(5, value / max * 100)}%;transition-delay:${index * 55}ms"></span></button>`).join('');
+      $('#barLabels').innerHTML = products.map(([id]) => `<span>${escapeHTML(String(id).slice(-4))}</span>`).join('');
+      requestAnimationFrame(() => document.querySelectorAll('.bar-fill').forEach(bar => bar.classList.add('is-visible')));
+      document.querySelectorAll('.bar-group[data-product]').forEach(bar => bar.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'product', value: bar.dataset.product, label: `Product ${bar.dataset.product}` }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    }
+
+    function renderCustomers(orders, users) {
+      const userMap = new Map();
+      users.forEach(user => {
+        const id = getCustomerId(user);
+        if (id != null) userMap.set(String(id), user);
+      });
+      const grouped = new Map();
+      orders.forEach(order => {
+        const id = order.user_id ?? order.customer_id ?? order.userId ?? order.customerId;
+        if (id == null) return;
+        const key = String(id);
+        const amount = (Number(order.amount) || 0) - (Number(order.discount_amount) || 0);
+        const current = grouped.get(key) || { id: key, revenue: 0, orders: 0, lastOrder: '' };
+        current.revenue += amount;
+        current.orders += 1;
+        const date = String(order.order_date_time || '').slice(0, 10);
+        if (date > current.lastOrder) current.lastOrder = date;
+        grouped.set(key, current);
+      });
+      const customers = [...grouped.values()].sort((a, b) => b.revenue - a.revenue);
+      const top = customers.slice(0, 5);
+      const totalRevenue = customers.reduce((sum, customer) => sum + customer.revenue, 0);
+      const repeatBuyers = customers.filter(customer => customer.orders > 1).length;
+      const topFiveRevenue = top.reduce((sum, customer) => sum + customer.revenue, 0);
+      const averageCustomerValue = customers.length ? totalRevenue / customers.length : 0;
+      const best = customers[0];
+      const colors = ['#ff7147', '#9f8bff', '#38ddc6', '#f6de91', '#7ea8ff'];
+
+      if (!top.length) {
+        $('#customerList').innerHTML = '<div class="customer-empty">No customer-linked orders are available yet.</div>';
+        $('#customerInsights').innerHTML = '<div class="customer-empty">Add orders with a user_id to see customer insights.</div>';
+        return;
+      }
+
+      $('#customerList').innerHTML = top.map((customer, index) => {
+        const label = customerLabel(customer.id, userMap.get(customer.id));
+        const share = totalRevenue ? customer.revenue / totalRevenue * 100 : 0;
+        return `<button class="customer-row" type="button" data-customer="${escapeHTML(customer.id)}" style="--avatar:${colors[index % colors.length]};animation-delay:${index * 75}ms"><span class="customer-rank">0${index + 1}</span><span class="customer-avatar">${escapeHTML(initials(label))}</span><span class="customer-main"><span class="customer-name">${escapeHTML(label)}</span><span class="customer-meta">${number(customer.orders)} order${customer.orders === 1 ? '' : 's'} · ${share.toFixed(1)}% of revenue</span></span><span class="customer-track"><span class="customer-fill" style="width:${Math.max(4, share)}%;transition-delay:${350 + index * 75}ms"></span></span><span class="customer-money">${money(customer.revenue)}</span></button>`;
+      }).join('');
+      document.querySelectorAll('[data-customer]').forEach(row => row.addEventListener('click', () => { state.active = 'orders'; state.filter = { type: 'customer', value: row.dataset.customer, label: row.querySelector('.customer-name').textContent }; state.page = 1; renderTabs(); renderTable(); document.querySelector('.explorer').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+
+      $('#customerInsights').innerHTML = [
+        insightCard('TOP CUSTOMER', best ? customerLabel(best.id, userMap.get(best.id)) : '—', best ? `${money(best.revenue)} · ${number(best.orders)} orders` : 'No data', '#ff7147'),
+        insightCard('REPEAT BUYERS', number(repeatBuyers), customers.length ? `${(repeatBuyers / customers.length * 100).toFixed(1)}% of active customers` : 'No data', '#38ddc6'),
+        insightCard('AVG CUSTOMER VALUE', money(averageCustomerValue), `${number(customers.length)} unique buyers`, '#9f8bff'),
+        insightCard('TOP 5 REVENUE SHARE', `${totalRevenue ? (topFiveRevenue / totalRevenue * 100).toFixed(1) : '0.0'}%`, `${money(topFiveRevenue)} combined`, '#f6de91')
+      ].join('');
+    }
+
+    function insightCard(label, value, note, color) {
+      return `<div class="insight-card" style="--insight-glow:${color}22"><div class="insight-label">${label}</div><div class="insight-value">${escapeHTML(value)}</div><div class="insight-note">${escapeHTML(note)}</div></div>`;
+    }
+
+    function getCustomerId(user) {
+      if (!user) return null;
+      const keys = ['user_id', 'id', 'customer_id', 'userId', 'customerId'];
+      const key = keys.find(candidate => user[candidate] != null);
+      return key ? user[key] : null;
+    }
+
+    function customerLabel(id, user) {
+      if (user) {
+        const keys = ['name', 'full_name', 'customer_name', 'user_name', 'username', 'email'];
+        const key = keys.find(candidate => user[candidate] != null && String(user[candidate]).trim());
+        if (key) return String(user[key]);
+      }
+      return `Customer ${id}`;
+    }
+
+    function initials(label) {
+      const parts = String(label).trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '?';
+      return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    }
+
+    function shortDate(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    }
+
+    function currentRows() {
+      let rows = [...(state.datasets[state.active] || [])];
+      if (state.filter && state.active === 'orders') {
+        if (state.filter.type === 'product') rows = rows.filter(row => String(row.product_id) === String(state.filter.value));
+        if (state.filter.type === 'date') rows = rows.filter(row => String(row.order_date_time || '').startsWith(state.filter.value));
+        if (state.filter.type === 'customer') rows = rows.filter(row => String(row.user_id ?? row.customer_id ?? row.userId ?? row.customerId) === String(state.filter.value));
+      }
+      if (state.search) {
+        const query = state.search.toLowerCase();
+        rows = rows.filter(row => JSON.stringify(row).toLowerCase().includes(query));
+      }
+      if (state.sortColumn) {
+        rows.sort((a, b) => compareValues(a[state.sortColumn], b[state.sortColumn], state.sortAscending));
+      }
+      return rows;
+    }
+
+    function compareValues(a, b, ascending) {
+      const numericA = Number(a), numericB = Number(b);
+      let result;
+      if (a == null) result = 1;
+      else if (b == null) result = -1;
+      else if (Number.isFinite(numericA) && Number.isFinite(numericB) && String(a).trim() !== '' && String(b).trim() !== '') result = numericA - numericB;
+      else result = String(a).localeCompare(String(b));
+      return ascending ? result : -result;
+    }
+
+    function renderTable() {
+      const rows = currentRows();
+      const columns = [...new Set(rows.flatMap(row => Object.keys(row)))].slice(0, 15);
+      $('#tableInfo').textContent = `${number(rows.length)} matching record${rows.length === 1 ? '' : 's'} in ${state.active}`;
+      $('#filterChip').innerHTML = state.filter ? `<span class="filter-chip">${escapeHTML(state.filter.label)} <button id="clearFilter" title="Clear filter">&times;</button></span>` : '';
+      $('#clearFilter')?.addEventListener('click', () => { state.filter = null; state.page = 1; renderTable(); });
+      if (!rows.length) { $('#dataTable').innerHTML = '<tbody><tr><td class="table-empty">No matching records found.</td></tr></tbody>'; renderPagination(0); return; }
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      state.page = Math.min(state.page, totalPages);
+      const start = (state.page - 1) * PAGE_SIZE;
+      const pageRows = rows.slice(start, start + PAGE_SIZE);
+      $('#dataTable').innerHTML = `<thead><tr>${columns.map(column => `<th data-sort-column="${escapeHTML(column)}">${escapeHTML(column)}${state.sortColumn === column ? `<span class="sort">${state.sortAscending ? '↑' : '↓'}</span>` : ''}</th>`).join('')}</tr></thead><tbody>${pageRows.map((row, index) => `<tr style="--row-index:${index % 12}">${columns.map(column => { const value = typeof row[column] === 'object' ? JSON.stringify(row[column]) : row[column]; return `<td title="${escapeHTML(value)}">${escapeHTML(value)}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+      document.querySelectorAll('[data-sort-column]').forEach(header => header.addEventListener('click', () => { const column = header.dataset.sortColumn; if (state.sortColumn === column) state.sortAscending = !state.sortAscending; else { state.sortColumn = column; state.sortAscending = true; } renderTable(); }));
+      renderPagination(rows.length);
+    }
+
+    function renderPagination(totalRows) {
+      const paginator = $('#pagination');
+      if (totalRows <= PAGE_SIZE) { paginator.hidden = true; return; }
+      paginator.hidden = false;
+      const pages = Math.ceil(totalRows / PAGE_SIZE), start = (state.page - 1) * PAGE_SIZE + 1, end = Math.min(state.page * PAGE_SIZE, totalRows);
+      paginator.innerHTML = `<span>Showing <strong>${number(start)}–${number(end)}</strong> of <strong>${number(totalRows)}</strong> rows</span><span class="pagination-controls"><button class="small-button" id="previousPage" ${state.page === 1 ? 'disabled' : ''}>← Prev</button><span>Page ${state.page} / ${pages}</span><button class="small-button" id="nextPage" ${state.page === pages ? 'disabled' : ''}>Next →</button></span>`;
+      $('#previousPage')?.addEventListener('click', () => { state.page--; renderTable(); });
+      $('#nextPage')?.addEventListener('click', () => { state.page++; renderTable(); });
+    }
+
+    function exportCurrentTable() {
+      const rows = currentRows();
+      if (!rows.length) { showToast('There is no data to export', true); return; }
+      const columns = [...new Set(rows.flatMap(row => Object.keys(row)))];
+      const csv = [columns, ...rows.map(row => columns.map(column => typeof row[column] === 'object' ? JSON.stringify(row[column]) : row[column] ?? ''))].map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      const link = Object.assign(document.createElement('a'), { href: url, download: `${state.active}-export-${new Date().toISOString().slice(0, 10)}.csv` });
+      document.body.append(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      showToast(`${state.active} CSV downloaded`);
+    }
+
+    let toastTimer;
+    function showToast(message, isError = false) {
+      const toast = $('#toast');
+      $('#toastText').textContent = message;
+      toast.style.borderColor = isError ? 'rgba(255,113,71,.35)' : 'rgba(56,221,198,.22)';
+      toast.querySelector('.toast-dot').style.background = isError ? 'var(--orange)' : 'var(--mint)';
+      toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2900);
+    }
+
+    $('#search').addEventListener('input', event => { state.search = event.target.value.trim(); state.page = 1; $('#clearSearch').classList.toggle('visible', !!state.search); renderTable(); });
+    $('#clearSearch').addEventListener('click', () => { $('#search').value = ''; state.search = ''; state.page = 1; $('#clearSearch').classList.remove('visible'); renderTable(); $('#search').focus(); });
+    $('#refreshButton').addEventListener('click', load);
+    $('#exportButton').addEventListener('click', exportCurrentTable);
+    $('#menuButton').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+    document.querySelectorAll('.metric-card[data-table]').forEach(card => card.addEventListener('click', () => switchTable(card.dataset.table)));
+    document.querySelectorAll('.nav-item[data-nav]').forEach(item => item.addEventListener('click', () => navigate(item.dataset.nav)));
+    document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); $('#search').focus(); } if (event.key === 'Escape') $('#sidebar').classList.remove('open'); });
+
+    function navigate(target) {
+      if (target === 'overview') { window.scrollTo({ top: 0, behavior: 'smooth' }); state.active = 'orders'; state.filter = null; renderTabs(); renderTable(); }
+      else if (target === 'insights') document.querySelector('.dashboard-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (TABLES.includes(target)) switchTable(target);
+      $('#sidebar').classList.remove('open'); updateNavigation();
+    }
+    function updateNavigation() {
+      document.querySelectorAll('.nav-item').forEach(item => { const target = item.dataset.nav; const active = target === 'overview' ? state.active === 'orders' : target === 'insights' ? false : target === state.active; item.classList.toggle('active', active); });
+    }
+
+    load();
+
+// Automatically fetch new Supabase data every 10 seconds
+setInterval(() => {
+  if (document.visibilityState === 'visible') load();
+}, 10000);
+  </script>
+</body>
+</html>
